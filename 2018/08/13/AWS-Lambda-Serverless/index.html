@@ -50,28 +50,34 @@
   };
 </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;index.html">
+  <meta name="description" content="前言相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。 Why serverless當中我們也參考了 Terraform, Apex 等知名">
+<meta name="keywords" content="serverless">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS Lambda Rest API：利用 serverless framework從開發到部屬">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2018&#x2F;08&#x2F;13&#x2F;AWS-Lambda-Serverless&#x2F;index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。 Why serverless當中我們也參考了 Terraform, Apex 等知名">
 <meta property="og:locale" content="en">
+<meta property="og:image" content="https:&#x2F;&#x2F;cdn-images-1.medium.com&#x2F;max&#x2F;2000&#x2F;1*lx4z0tE2-MF2ztRJOHv2pQ.png">
+<meta property="og:updated_time" content="2019-10-29T06:00:29.906Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;cdn-images-1.medium.com&#x2F;max&#x2F;2000&#x2F;1*lx4z0tE2-MF2ztRJOHv2pQ.png">
 
-<link rel="canonical" href="http://yoursite.com/">
+<link rel="canonical" href="http://yoursite.com/2018/08/13/AWS-Lambda-Serverless/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: true,
-    isPost: false,
+    isHome: false,
+    isPost: true,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>Hexo</title>
+  <title>AWS Lambda Rest API：利用 serverless framework從開發到部屬 | Hexo</title>
   
 
 
@@ -166,98 +172,10 @@
             
 
   <div class="posts-expand">
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/12/26/Sync-Table-Schema/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
-      <meta itemprop="name" content="Kyoforing">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Hexo">
-    </span>
-      <header class="post-header">
-        <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/12/26/Sync-Table-Schema/" class="post-title-link" itemprop="url">如何同步2個不同Database Name的Table Schema (MySQL)</a>
-        </h1>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-
-              <time title="Created: 2018-12-26 13:17:52" itemprop="dateCreated datePublished" datetime="2018-12-26T13:17:52+08:00">2018-12-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2019-10-29 14:01:45" itemprop="dateModified" datetime="2019-10-29T14:01:45+08:00">2019-10-29</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
       
-          <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>同步跨環境的 table schema 一直是一件繁雜卻又非常重要的任務之一。市面上同步不同 Database 的 Table Schema 工具不勝枚舉，甚至能自動化，但能同時處理以下 2 種情況的工具並不多見。</p>
-<ol>
-<li>來源 Database 與目的 Database 的 Database Name 不一致。</li>
-<li>來源 Database 與目的 Database 不在同一個 VPC。</li>
-</ol>
-<p>通常正式環境的 Database 都會透過 VPC 保護。如果為了能夠同步 Table Schema，而在 VPC 開一個洞 (e.g. VPC peering)讓工具連進VPC，難免心裡毛毛的。因此本篇文章介紹一個「怪招」來解決以上 2 個問題。</p>
-<h2 id="解法"><a href="#解法" class="headerlink" title="解法"></a>解法</h2><p>這邊會利用到 MySQL 官方提供工具 MySQL Workbench。</p>
-<ol>
-<li>利用 MySQL Workbench 建立來源端 Database ER model</li>
-</ol>
-<p><img src="https://cdn-images-1.medium.com/max/2000/1*9Nqw38HG8rP-oFDq5spFSA.png" alt=""></p>
-<ol start="2">
-<li>將來源 Database 的 Schema Rename 為目的 Database 的 Database Name，並存檔。</li>
-</ol>
-<p><img src="https://cdn-images-1.medium.com/max/2000/1*I5-GF4dXJ_AHqV2zPr9_3g.png" alt=""></p>
-<ol start="3">
-<li>連進目的 Database 所在 VPC，並開啟 Rename 後的 ER model 檔，最後選擇 synchronize with Any Source。</li>
-</ol>
-<p><img src="https://cdn-images-1.medium.com/max/2000/1*j8D-kAJIMpN7xklV1wi-lg.png" alt=""></p>
-<ol start="4">
-<li>最後因 ER model 的偽裝成功，讓兩個不同 Database Name 的 Database 得以進行比對，並產生建立或修改 table schema 的語法。</li>
-</ol>
-<p><img src="https://cdn-images-1.medium.com/max/2000/1*CGE13yG_jXk15aQGv5-n5Q.png" alt=""></p>
-<h2 id="結論"><a href="#結論" class="headerlink" title="結論"></a>結論</h2><p>這個方法其實沒有太大的學問，卻能解決市面上許多比對工具所遭遇到的限制。當然，我相信一定有更好、更方便的工具來簡化這流程，也歡迎各位推薦。</p>
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
   
   
-  
-
-        
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/13/AWS-Lambda-Serverless/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -271,8 +189,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/08/13/AWS-Lambda-Serverless/" class="post-title-link" itemprop="url">AWS Lambda Rest API：利用 serverless framework從開發到部屬</a>
+          AWS Lambda Rest API：利用 serverless framework從開發到部屬
         </h1>
 
         <div class="post-meta">
@@ -303,7 +220,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。</p>
+        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。</p>
 <h3 id="Why-serverless"><a href="#Why-serverless" class="headerlink" title="Why serverless"></a>Why serverless</h3><p>當中我們也參考了 <a href="https://www.terraform.io/" target="_blank" rel="noopener">Terraform</a>, <a href="http://apex.run/" target="_blank" rel="noopener">Apex</a> 等知名部屬工具。Terraform 的強項是偏重於雲端基礎架構管理，Apex 則是專精於 AWS lambda function 的打包與部署，對於其他 AWS 資源的連動與設定較為缺乏。相較之下，<a href="https://serverless.com/" target="_blank" rel="noopener">serverless</a> 除了著重於 function 的開發外，也支援 API Gateway, Cloudwatch Schedule 的連動設定，開發社群也提供許多外掛加強 serverless 的特異功能。更重要的是不只支援 AWS，同時也支援 Azure, GCP, IBM OpenWhisk，以防有個萬一 👻。</p>
 <h3 id="About-Lambda-function"><a href="#About-Lambda-function" class="headerlink" title="About Lambda function"></a>About Lambda function</h3><p>Lambda function 是基於容器技術，以事件觸發條件而啟動，可由HTTP、API呼叫、AWS或第三方服務來啟動。本篇文章是以串接 API Gateway，API 呼叫的方式來啟動為例。在啟動 Lambda function 前，有幾項參數是必須了解與設定。</p>
 <ol>
@@ -414,24 +331,39 @@ functions:
 <h3 id="Integrated-with-CI-CD"><a href="#Integrated-with-CI-CD" class="headerlink" title="Integrated with CI/CD"></a>Integrated with CI/CD</h3><p>在完成這一系列的 serverless REST API project 建置後，要串接 CI/CD 也是沒有問題的。只要 commit 到 git 中，再交由 CI/CD 監聽事件，自動執行 unit test 與 deploy 指令，即可完成自動部屬。</p>
 <h2 id="結語"><a href="#結語" class="headerlink" title="結語"></a>結語</h2><p>在這次的 AWS Lambda Rest API 的建置過程當中，確實感受到 serverless 的魅力，高可用性、低耦合性、價格便宜，很適合亟需成長的新創公司快速建立服務，但也發現在很多應用上，仍有其軟硬體限制，綁手綁腳。但說穿了，對後端工程師來說，就是多一項武器可以使用，針對各種不同的環境與狀況，決定適用的專案架構，才是正確面對 serverless 的態度。</p>
 
-      
     </div>
 
     
     
     
+
       <footer class="post-footer">
-        <div class="post-eof"></div>
+          <div class="post-tags">
+              <a href="/tags/serverless/" rel="tag"># serverless</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2018/12/26/Sync-Table-Schema/" rel="prev" title="如何同步2個不同Database Name的Table Schema (MySQL)">
+                  如何同步2個不同Database Name的Table Schema (MySQL) <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
       </footer>
+    
   </article>
   
   
   
 
   </div>
-
-  
-
 
 
           </div>
@@ -460,6 +392,7 @@ functions:
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-serverless"><span class="nav-number">2.</span> <span class="nav-text">Why serverless</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Lambda-function"><span class="nav-number">3.</span> <span class="nav-text">About Lambda function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Lambda-Project"><span class="nav-number">4.</span> <span class="nav-text">About Lambda Project</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Familiar-with-serverless-config-—-switch-env-by-command"><span class="nav-number">5.</span> <span class="nav-text">Familiar with serverless config — switch env by command</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Serverless-debug"><span class="nav-number">6.</span> <span class="nav-text">Serverless debug</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Minimize-your-lambda-function"><span class="nav-number">7.</span> <span class="nav-text">Minimize your lambda function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reuse-database-connection"><span class="nav-number">8.</span> <span class="nav-text">Reuse database connection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Warmup-lambda-function"><span class="nav-number">9.</span> <span class="nav-text">Warmup lambda function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Serverless-Unit-Test"><span class="nav-number">10.</span> <span class="nav-text">Serverless Unit Test</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reaching-CloudFormation-resources-limit"><span class="nav-number">11.</span> <span class="nav-text">Reaching CloudFormation resources limit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Integrated-with-CI-CD"><span class="nav-number">12.</span> <span class="nav-text">Integrated with CI/CD</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結語"><span class="nav-number"></span> <span class="nav-text">結語</span></a></div>
       </div>
       <!--/noindex-->
 
