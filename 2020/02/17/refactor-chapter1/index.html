@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Chapter1 重構：第一個範例分解 statement 函式 Building Tests (85)：重構時，必須有測試確保重構正確  Extract Function (126)：  提取函式 作者習慣以 result 作為函式輸出變數名稱 可達到實作模式提到的『以函式名稱代替註解』的效果   Replace Temp with Query (208)  將暫時變數換成查詢函示 可達到實作模">
+<meta name="keywords" content="Refactor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chapter1 重構：第一個範例">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;02&#x2F;17&#x2F;refactor-chapter1&#x2F;index.html">
+<meta property="og:site_name" content="奇歐雜筆">
+<meta property="og:description" content="Chapter1 重構：第一個範例分解 statement 函式 Building Tests (85)：重構時，必須有測試確保重構正確  Extract Function (126)：  提取函式 作者習慣以 result 作為函式輸出變數名稱 可達到實作模式提到的『以函式名稱代替註解』的效果   Replace Temp with Query (208)  將暫時變數換成查詢函示 可達到實作模">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-02-17T09:16:45.634Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/17/refactor-chapter1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Chapter1 重構：第一個範例 | 奇歐雜筆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">奇歐雜筆</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Just murmur</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/refactor-chapter1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chapter1 重構：第一個範例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-17 17:16:00 / Modified: 17:16:45" itemprop="dateCreated datePublished" datetime="2020-02-17T17:16:00+08:00">2020-02-17</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="Chapter1-重構：第一個範例"><a href="#Chapter1-重構：第一個範例" class="headerlink" title="Chapter1 重構：第一個範例"></a>Chapter1 重構：第一個範例</h2><h3 id="分解-statement-函式"><a href="#分解-statement-函式" class="headerlink" title="分解 statement 函式"></a>分解 statement 函式</h3><ul>
+<li><p>Building Tests (85)：重構時，必須有測試確保重構正確</p>
+</li>
+<li><p>Extract Function (126)：</p>
+<ul>
+<li>提取函式</li>
+<li>作者習慣以 result 作為函式輸出變數名稱</li>
+<li>可達到實作模式提到的『以函式名稱代替註解』的效果</li>
+</ul>
+</li>
+<li><p>Replace Temp with Query (208)</p>
+<ul>
+<li>將暫時變數換成查詢函示</li>
+<li>可達到實作模式提到的『以函式名稱代替註解』的效果<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">const</span> play = plays[perf.playID];</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">const</span> play = playFor(perf);</span><br><span class="line"><span class="keyword">const</span> playFor = <span class="function"><span class="params">perf</span> =&gt;</span> plays[perf.playID];</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Inline Variable：內聯變數 (146)</p>
+<ul>
+<li>運算式已表達充分資訊，不需另外宣告變數，而且有時該變數會阻礙你重構時，可使用內聯變數。</li>
+<li>優點：減少需要控制的區域變數，讓程式較單純。</li>
+<li>缺點：效能微幅下降，但作者認為下降程度小到可以被忽略。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">const</span> basePrice = anOrder.basePrice;</span><br><span class="line"><span class="keyword">return</span> basePrice &gt; <span class="number">1000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">return</span> anOrder.basePrice &gt; <span class="number">1000</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>Change Function Declaration (147)</p>
+<ul>
+<li>修改函式宣告式</li>
+<li>處理函式名稱變更或函式參數增減時，作者建議的漸進式修改方法</li>
+</ul>
+</li>
+<li><p>Split Loop (267)</p>
+<ul>
+<li>拆開迴圈</li>
+<li>優點：讓程式結構較為單純，提取函式更為容易</li>
+<li>缺點：效能微幅下降，但作者認為下降程度小到可以被忽略。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">let</span> averageAge = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">let</span> totalSalary = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> people) &#123;</span><br><span class="line">  averageAge += p.age;</span><br><span class="line">  totalSalary += p.salary;</span><br><span class="line">&#125;</span><br><span class="line">averageAge = averageAge / people.length;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">let</span> totalSalary = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> people) &#123;</span><br><span class="line">  totalSalary += p.salary;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> averageAge = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> people) &#123;</span><br><span class="line">  averageAge += p.age;</span><br><span class="line">&#125;</span><br><span class="line">averageAge = averageAge / people.length;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>Slide Statement (262)</p>
+<ul>
+<li>移動陳述式</li>
+<li>將關係相近的變數宣告或程式碼整理在一起，增加程式可讀性。</li>
+<li>移動時，須注意程式碼是否有強烈的順序關係，以避免產生 bug。</li>
+<li>最上面宣告所有變數 vs 使用該變數的程式碼前才宣告 （作者習慣是後者）</li>
+</ul>
+</li>
+<li><p>補充 - 1</p>
+<ul>
+<li>小步前進(編譯、測試、提交)：每個小小的重構步驟，都要做測試甚至 commit。若發生邏輯錯誤才可即時的 revert 這個 commit。</li>
+<li>有時為了重構增加程式可讀性，無可避免的將會降低程式效能。大部分情況是細微到可以忽略，但如果有顯著下降，仍建議先完成重構，再整體審視程式架構來改善效能。</li>
+<li>清晰比簡潔更為重要</li>
+</ul>
+</li>
+</ul>
+<h3 id="將計算階段與格式化階段拆開：新增-Html-版本功能"><a href="#將計算階段與格式化階段拆開：新增-Html-版本功能" class="headerlink" title="將計算階段與格式化階段拆開：新增 Html 版本功能"></a>將計算階段與格式化階段拆開：新增 Html 版本功能</h3><ul>
+<li><p>Split Phase (181)</p>
+<ul>
+<li>拆成不同階段</li>
+<li>例如將一個運算+列印的 function，因為有2種列印方式的需求，將程式依階段拆成運算、列印 2 個 function。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">const</span> statement = <span class="function"><span class="params">people</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> totalSalary = <span class="number">0</span>;  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> people)</span><br><span class="line">     totalSalary += p.salary;</span><br><span class="line">  <span class="keyword">let</span> result = <span class="string">`Total Salary =<span class="subst">$&#123;totalSalary&#125;</span>`</span>;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">const</span> plainText = <span class="function"><span class="params">people</span> =&gt;</span> <span class="string">`Total Salary =<span class="subst">$&#123;statement(people)&#125;</span>`</span>;</span><br><span class="line"><span class="keyword">const</span> renderHtml = <span class="function"><span class="params">people</span> =&gt;</span> <span class="string">`&lt;h1&gt;Total Salary&lt;/h1&gt;&lt;br&gt;<span class="subst">$&#123;statement(people)&#125;</span>`</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> statement = <span class="function"><span class="params">people</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> result = <span class="number">0</span>;  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> people)</span><br><span class="line">     result += p.salary;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>Move Function (232)</p>
+<ul>
+<li>移動函式</li>
+<li>重構時，因移動函式使用地方，作者建議的漸進式修改方法</li>
+</ul>
+</li>
+<li><p>Replace Loop with Pipeline (271)</p>
+<ul>
+<li>將迴圈改成流程</li>
+<li>利用 ES6 的語法糖，簡化過濾與迴圈的程式碼<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">let</span> names = [];</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">const</span> p <span class="keyword">of</span> people) &#123;</span><br><span class="line">  <span class="keyword">if</span> (p.job === <span class="string">'programmer'</span>)</span><br><span class="line">    names.push(p.name);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">let</span> names = people.filter(<span class="function"><span class="params">p</span> =&gt;</span> p.job === <span class="string">'programmer'</span>).map(<span class="function"><span class="params">p</span> =&gt;</span> p.name);</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="用類型辨識計算"><a href="#用類型辨識計算" class="headerlink" title="用類型辨識計算"></a>用類型辨識計算</h3><ul>
+<li><p>Replace Conditional with Polymorphism (316)</p>
+<ul>
+<li>將條件式換成多型，作者在這邊會搭配繼承結構來使用</li>
+<li>從 switch 轉換為 class 型式，幫每一個 case 建立一個類別，升程式功能擴充彈性</li>
+<li>通常用於 if/else, switch 中有較為複雜的邏輯，且有擴充條件情況的需求時使用</li>
+</ul>
+</li>
+<li><p>Replace Type Code with Subclasses (417)</p>
+<ul>
+<li>將型別代碼換成子類別<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">switch</span> <span class="keyword">case</span> (employee.job) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'programmer'</span>:</span><br><span class="line">    <span class="keyword">return</span> employee.age &gt;= <span class="number">30</span> ? <span class="string">'社畜'</span> : <span class="string">'碼農'</span>;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'boss'</span>:</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'LaoDa'</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">switch</span> <span class="keyword">case</span> (employee.job) &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'programmer'</span>: <span class="keyword">return</span> <span class="keyword">new</span> Programmer(employee);</span><br><span class="line">  <span class="keyword">case</span> <span class="string">'boss'</span>: <span class="keyword">return</span> <span class="keyword">new</span> Boss(employee);</span><br><span class="line">  <span class="keyword">default</span>: <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Wrong Job!'</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">JobNickname</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(employee) &#123;</span><br><span class="line">    <span class="keyword">this</span>.employee = employee;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">get</span> nickname() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'unknown'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Programmer</span> <span class="title">extend</span> <span class="title">JobNickname</span> </span>&#123;</span><br><span class="line">  <span class="keyword">get</span> nickname() &#123;</span><br><span class="line">    <span class="keyword">return</span> employee.age &gt;= <span class="number">30</span> ? <span class="string">'社畜'</span> : <span class="string">'碼農'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Boss</span> <span class="title">extend</span> <span class="title">JobNickname</span> </span>&#123; </span><br><span class="line">  <span class="keyword">get</span> nickname() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'LaoDa'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改後2</span></span><br><span class="line"><span class="keyword">const</span> NicknameClass = <span class="keyword">new</span> JobNickname(employee);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">JobNickname</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(employee) &#123;</span><br><span class="line">    <span class="keyword">const</span> classes = &#123;</span><br><span class="line">      Programmer,</span><br><span class="line">      Boss</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">if</span> (!classes[employee.job]) <span class="keyword">throw</span> <span class="built_in">Error</span>(<span class="string">'Wrong Job'</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> classes[employee.job];</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">get</span> nickname() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'unknown'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Programmer</span> <span class="title">extend</span> <span class="title">JobNickname</span> </span>&#123;</span><br><span class="line">  <span class="keyword">get</span> nickname() &#123;</span><br><span class="line">    <span class="keyword">return</span> employee.age &gt;= <span class="number">30</span> ? <span class="string">'社畜'</span> : <span class="string">'碼農'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Boss</span> <span class="title">extend</span> <span class="title">JobNickname</span> </span>&#123; </span><br><span class="line">  <span class="keyword">get</span> nickname() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'LaoDa'</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Replace Constructor with Factory Function (386)<ul>
+<li>將建構式換成工廠函式<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="keyword">const</span> candidate = <span class="keyword">new</span> Employee(name, empType);</span><br><span class="line"><span class="keyword">const</span> boss = <span class="keyword">new</span> Employee(name, <span class="string">'B'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="keyword">const</span> candidate = createEmployee(name, empType);</span><br><span class="line"><span class="keyword">const</span> boss = createEmployee(name, <span class="string">'B'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> createEmployee = <span class="function">(<span class="params">name, type</span>) =&gt;</span> <span class="keyword">new</span> Employee(name, type);</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後2</span></span><br><span class="line"><span class="keyword">const</span> candidate = createEmployee(name, empType);</span><br><span class="line"><span class="keyword">const</span> boss = createBoss(name);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> createEmployee = <span class="function">(<span class="params">name, type</span>) =&gt;</span> <span class="keyword">new</span> Employee(name, type);</span><br><span class="line"><span class="keyword">const</span> createBoss = <span class="function"><span class="params">name</span> =&gt;</span> <span class="keyword">new</span> Employee(name, <span class="string">'B'</span>);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Refactor/" rel="tag"># Refactor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2019/10/29/first/" rel="next" title="first">
+                  <i class="fa fa-chevron-left"></i> first
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Chapter1-重構：第一個範例"><span class="nav-number">1.</span> <span class="nav-text">Chapter1 重構：第一個範例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分解-statement-函式"><span class="nav-number">1.1.</span> <span class="nav-text">分解 statement 函式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#將計算階段與格式化階段拆開：新增-Html-版本功能"><span class="nav-number">1.2.</span> <span class="nav-text">將計算階段與格式化階段拆開：新增 Html 版本功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用類型辨識計算"><span class="nav-number">1.3.</span> <span class="nav-text">用類型辨識計算</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Kyoforing"
+    src="https://i.imgur.com/Th4Am8x.jpg">
+  <p class="site-author-name" itemprop="name">Kyoforing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kyoforing</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
