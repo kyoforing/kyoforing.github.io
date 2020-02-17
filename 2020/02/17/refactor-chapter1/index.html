@@ -50,15 +50,15 @@
   };
 </script>
 
-  <meta name="description" content="Chapter1 重構：第一個範例分解 statement 函式 Building Tests (85)：重構時，必須有測試確保重構正確  Extract Function (126)：  提取函式 作者習慣以 result 作為函式輸出變數名稱 可達到實作模式提到的『以函式名稱代替註解』的效果   Replace Temp with Query (208)  將暫時變數換成查詢函示 可達到實作模">
+  <meta name="description" content="Chapter1 重構：第一個範例 - 使用到的重構手法筆記分解 statement 函式 Building Tests (85)：重構時，必須有測試確保重構正確  Extract Function (126)：  提取函式 作者習慣以 result 作為函式輸出變數名稱 可達到實作模式提到的『以函式名稱代替註解』的效果   Replace Temp with Query (208)  將暫時變數">
 <meta name="keywords" content="Refactor">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Chapter1 重構：第一個範例">
+<meta property="og:title" content="Chapter1 重構：第一個範例 - 使用到的重構手法筆記">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;02&#x2F;17&#x2F;refactor-chapter1&#x2F;index.html">
 <meta property="og:site_name" content="奇歐雜筆">
-<meta property="og:description" content="Chapter1 重構：第一個範例分解 statement 函式 Building Tests (85)：重構時，必須有測試確保重構正確  Extract Function (126)：  提取函式 作者習慣以 result 作為函式輸出變數名稱 可達到實作模式提到的『以函式名稱代替註解』的效果   Replace Temp with Query (208)  將暫時變數換成查詢函示 可達到實作模">
+<meta property="og:description" content="Chapter1 重構：第一個範例 - 使用到的重構手法筆記分解 statement 函式 Building Tests (85)：重構時，必須有測試確保重構正確  Extract Function (126)：  提取函式 作者習慣以 result 作為函式輸出變數名稱 可達到實作模式提到的『以函式名稱代替註解』的效果   Replace Temp with Query (208)  將暫時變數">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-02-17T09:22:57.336Z">
+<meta property="og:updated_time" content="2020-02-17T09:50:14.057Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yoursite.com/2020/02/17/refactor-chapter1/">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>Chapter1 重構：第一個範例 | 奇歐雜筆</title>
+  <title>Chapter1 重構：第一個範例 - 使用到的重構手法筆記 | 奇歐雜筆</title>
   
 
 
@@ -188,7 +188,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          Chapter1 重構：第一個範例
+          Chapter1 重構：第一個範例 - 使用到的重構手法筆記
         </h1>
 
         <div class="post-meta">
@@ -199,7 +199,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-02-17 17:16:00 / Modified: 17:22:57" itemprop="dateCreated datePublished" datetime="2020-02-17T17:16:00+08:00">2020-02-17</time>
+              <time title="Created: 2020-02-17 17:16:00 / Modified: 17:50:14" itemprop="dateCreated datePublished" datetime="2020-02-17T17:16:00+08:00">2020-02-17</time>
             </span>
 
           
@@ -213,7 +213,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Chapter1-重構：第一個範例"><a href="#Chapter1-重構：第一個範例" class="headerlink" title="Chapter1 重構：第一個範例"></a>Chapter1 重構：第一個範例</h2><h3 id="分解-statement-函式"><a href="#分解-statement-函式" class="headerlink" title="分解 statement 函式"></a>分解 statement 函式</h3><ul>
+        <h2 id="Chapter1-重構：第一個範例-使用到的重構手法筆記"><a href="#Chapter1-重構：第一個範例-使用到的重構手法筆記" class="headerlink" title="Chapter1 重構：第一個範例 - 使用到的重構手法筆記"></a>Chapter1 重構：第一個範例 - 使用到的重構手法筆記</h2><h3 id="分解-statement-函式"><a href="#分解-statement-函式" class="headerlink" title="分解 statement 函式"></a>分解 statement 函式</h3><ul>
 <li><p>Building Tests (85)：重構時，必須有測試確保重構正確</p>
 </li>
 <li><p>Extract Function (126)：</p>
@@ -371,7 +371,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Chapter1-重構：第一個範例"><span class="nav-number">1.</span> <span class="nav-text">Chapter1 重構：第一個範例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分解-statement-函式"><span class="nav-number">1.1.</span> <span class="nav-text">分解 statement 函式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#將計算階段與格式化階段拆開：新增-Html-版本功能"><span class="nav-number">1.2.</span> <span class="nav-text">將計算階段與格式化階段拆開：新增 Html 版本功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用類型辨識計算"><span class="nav-number">1.3.</span> <span class="nav-text">用類型辨識計算</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Chapter1-重構：第一個範例-使用到的重構手法筆記"><span class="nav-number">1.</span> <span class="nav-text">Chapter1 重構：第一個範例 - 使用到的重構手法筆記</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#分解-statement-函式"><span class="nav-number">1.1.</span> <span class="nav-text">分解 statement 函式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#將計算階段與格式化階段拆開：新增-Html-版本功能"><span class="nav-number">1.2.</span> <span class="nav-text">將計算階段與格式化階段拆開：新增 Html 版本功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用類型辨識計算"><span class="nav-number">1.3.</span> <span class="nav-text">用類型辨識計算</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
