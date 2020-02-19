@@ -171,6 +171,148 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/refactor-chapter2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/17/refactor-chapter2/" class="post-title-link" itemprop="url">Chapter2 重構的原理 - 整理筆記</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-02-17 17:16:00" itemprop="dateCreated datePublished" datetime="2020-02-17T17:16:00+08:00">2020-02-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-02-19 15:22:04" itemprop="dateModified" datetime="2020-02-19T15:22:04+08:00">2020-02-19</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Chapter2-重構的原理-整理筆記"><a href="#Chapter2-重構的原理-整理筆記" class="headerlink" title="Chapter2 重構的原理 - 整理筆記"></a>Chapter2 重構的原理 - 整理筆記</h1><h2 id="何謂重構"><a href="#何謂重構" class="headerlink" title="何謂重構?"></a>何謂重構?</h2><h3 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h3><ul>
+<li>不改變行為、Input、Output 的情況下，用一系列的重構手法對軟體結構進行變動</li>
+</ul>
+<h3 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h3><ul>
+<li>提高程式的可讀性</li>
+<li>減低未來修改程式或新增功能時所耗費的成本</li>
+</ul>
+<h3 id="簡述"><a href="#簡述" class="headerlink" title="簡述"></a>簡述</h3><ul>
+<li>一個重構的過程應該是一連串的小步驟，一個小步驟短則５分鐘，最長應於數小時內解決。</li>
+<li>性能特徵或許會有變化，但應讓使用者感受不到變化</li>
+<li>原本就有 bug 的話，重構後仍應繼續存在。在確認重構完成後，再開始修正。</li>
+<li>重構 vs 性能優化：兩者都是在不改變行為、Input、Output 的情況下進行優化。但是方向不同，重構後有可能導致性能下降，性能優化後也可能導致程式可讀性下降。應盡量在當中取得一個平衡，也就是【讓使用者感受不到變化】的前提下進行重構。</li>
+</ul>
+<h3 id="兩頂帽子：加入功能與重構"><a href="#兩頂帽子：加入功能與重構" class="headerlink" title="兩頂帽子：加入功能與重構"></a>兩頂帽子：加入功能與重構</h3><ul>
+<li>兩者不會同時進行，而是一個不斷輪流進行的過程</li>
+<li>重構 → 加入功能 → 加入測試 → 重構 → … </li>
+</ul>
+<h2 id="為何重構"><a href="#為何重構" class="headerlink" title="為何重構"></a>為何重構</h2><h3 id="重構可以改善軟體的設計"><a href="#重構可以改善軟體的設計" class="headerlink" title="重構可以改善軟體的設計"></a>重構可以改善軟體的設計</h3><ul>
+<li>程式架構設計隨著需求修改，逐漸劣化，讓可讀性越來越差。</li>
+<li>消除重複的程式碼：確保每一段程式碼只描述任何事項一次，修改程式碼只需修改一個地方</li>
+</ul>
+<h3 id="重構可讓軟體更容易了解、更容易找出-bug"><a href="#重構可讓軟體更容易了解、更容易找出-bug" class="headerlink" title="重構可讓軟體更容易了解、更容易找出 bug"></a>重構可讓軟體更容易了解、更容易找出 bug</h3><ul>
+<li>寫出容易閱讀的程式碼，減少修改難度及修改時間，幫助自己也是幫助別人。</li>
+<li>程式碼容易閱讀後，更容易釐清思路看出 bug</li>
+</ul>
+<h3 id="重構可以協助提升程式編寫速度"><a href="#重構可以協助提升程式編寫速度" class="headerlink" title="重構可以協助提升程式編寫速度"></a>重構可以協助提升程式編寫速度</h3><ul>
+<li>刻版印象：重構是花時間且沒有生產力的</li>
+<li>重構後通常能有效減低未來修改程式或新增功能時所耗費的時間成本</li>
+<li>我們很難一開始就做出良好的設計，初期一定會需要重構來打造更好的基礎。因此從長遠來看，為了未來快速完成新功能，重構非常的重要。</li>
+</ul>
+<h2 id="何時該進行重構"><a href="#何時該進行重構" class="headerlink" title="何時該進行重構"></a>何時該進行重構</h2><p>同樣的事做3次，就該重構了</p>
+<h3 id="重構的種類"><a href="#重構的種類" class="headerlink" title="重構的種類"></a>重構的種類</h3><ul>
+<li><p>伺機性重構：不一定要預留時間重構，通常在加功能或除錯時，自然而然的調整</p>
+<ul>
+<li>預備性重構：便於加入新功能或擴充現有函式。Parameterize Function (358)</li>
+<li>理解性重構：讓程式碼更容易被了解。可藉由這過程釐清自己對於程式的了解。</li>
+<li>打掃性重構：程式碼重複或有一些不必要的邏輯需要做整理。此類重構優先度不高，有空再處理。</li>
+</ul>
+</li>
+<li><p>計畫性重構：優秀的程式碼也需要重構，以保持更好的狀態迎接新功能。</p>
+</li>
+<li><p>長期重構：分階段逐步完成大規模重構。例如 Restful API 轉為 GraphQL</p>
+</li>
+<li><p>程式碼複審時重構：讓團隊對於重構有共識，傳達更好的經驗給團隊，提升整個團隊能力。近似 pair programming</p>
+</li>
+</ul>
+<h3 id="我該如何向主管報告？"><a href="#我該如何向主管報告？" class="headerlink" title="我該如何向主管報告？"></a>我該如何向主管報告？</h3><p>不要說出來(?)</p>
+<h3 id="何時不該重構"><a href="#何時不該重構" class="headerlink" title="何時不該重構"></a>何時不該重構</h3><ul>
+<li>程式過於混亂，但不需修改的時候</li>
+<li>重寫比重構簡單的時候</li>
+<li>加一個小的新功能，需要大規模的重構，效益不成正比</li>
+</ul>
+<h2 id="重構的難題"><a href="#重構的難題" class="headerlink" title="重構的難題"></a>重構的難題</h2><h3 id="減緩新功能的完成速度？"><a href="#減緩新功能的完成速度？" class="headerlink" title="減緩新功能的完成速度？"></a>減緩新功能的完成速度？</h3><p>重構的目的不是為了展示程式碼有多出色，它完全是出於經濟目的。<br>重構提升我們的開發速度、更快地添加新功能、更快地修復 Bug。</p>
+<h3 id="程式碼擁有權"><a href="#程式碼擁有權" class="headerlink" title="程式碼擁有權"></a>程式碼擁有權</h3><p>你可能因為程式碼是別的部門管理，或是程式碼是提供給顧客使用的API，難以對程式碼進行重構<br>這時可以考慮使用 Rename Function (147)作為一個中介，不過這是沒有辦法中的辦法<br>最理想的狀態還是每個人都程式碼擁有權。</p>
+<h3 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h3><p>分支存活的時間越久，把重構成果合併至主線的難度越高<br>作者建議每天至少要和主線合併一次</p>
+<h3 id="測試"><a href="#測試" class="headerlink" title="測試"></a>測試</h3><ul>
+<li>用自檢(self-testing)程式碼確保每次重構後的行為都維持不變</li>
+<li>信任優秀的自動重構功能：例如 VScode 的重新命名符號</li>
+</ul>
+<h3 id="老舊的程式碼"><a href="#老舊的程式碼" class="headerlink" title="老舊的程式碼"></a>老舊的程式碼</h3><ul>
+<li>在程式中尋找可以插入測試的接縫，但這仍需承擔一定程度的風險</li>
+<li>不建議一次重構完畢，試著分解成多個小部分，每次都改善一小部分，逐步改善程式碼體質</li>
+</ul>
+<h3 id="資料庫"><a href="#資料庫" class="headerlink" title="資料庫"></a>資料庫</h3><p>預先撰寫遷移腳本 migration script 來執行 table schema 的重要修改，如：欄位名稱重新命名。</p>
+<h2 id="重構、架構與Yangi"><a href="#重構、架構與Yangi" class="headerlink" title="重構、架構與Yangi"></a>重構、架構與Yangi</h2><ul>
+<li>軟體架構設計往往被認為一開始就要一次到位，事實上是需要根據需求不斷的重構來優化軟體架構。</li>
+<li>為了不一定會發生的未來增加架構的彈性，事實上是一種過度設計，反而會降低對變化的應變能力。</li>
+<li>除非認為未來重構這塊比較困難，否則不需現在加入彈性機制，只要就現行的需求做到適當的重構即可。</li>
+</ul>
+<h2 id="重構與更廣泛的軟體開發程序"><a href="#重構與更廣泛的軟體開發程序" class="headerlink" title="重構與更廣泛的軟體開發程序"></a>重構與更廣泛的軟體開發程序</h2><ul>
+<li>持續整合、自檢程式碼以及重構 (test-drivern development)</li>
+<li>快速回應、小步修改、持續交付，讓軟體持續處於可發表的狀態</li>
+</ul>
+<h2 id="重構與性能"><a href="#重構與性能" class="headerlink" title="重構與性能"></a>重構與性能</h2><ul>
+<li>重構常常被認為會為了可讀性而寫出降低性能的程式碼。</li>
+<li>作者認為，編寫快速軟體的訣竅，應是先重構出一個可讀性高、可調整的軟體，再調整成滿意的速度，在可讀性與性能間取得平衡。</li>
+<li>性能優化應著重於 bottleneck (後端通常是資料庫連線與 SQL 查詢)</li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/17/refactor-chapter1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -698,7 +840,7 @@ functions:
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
