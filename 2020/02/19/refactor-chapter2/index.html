@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Chapter2 重構的原理 - 整理筆記何謂重構?定義 不改變行為、Input、Output 的情況下，用一系列的重構手法對軟體結構進行變動  效果 提高程式的可讀性 減低未來修改程式或新增功能時所耗費的成本  簡述 一個重構的過程應該是一連串的小步驟，一個小步驟短則５分鐘，最長應於數小時內解決。 性能特徵或許會有變化，但應讓使用者感受不到變化 原本就有 bug 的話，重構後仍應繼續存在。在確認">
+<meta name="keywords" content="Refactor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chapter2 重構的原理 - 整理筆記">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;02&#x2F;19&#x2F;refactor-chapter2&#x2F;index.html">
+<meta property="og:site_name" content="奇歐雜筆">
+<meta property="og:description" content="Chapter2 重構的原理 - 整理筆記何謂重構?定義 不改變行為、Input、Output 的情況下，用一系列的重構手法對軟體結構進行變動  效果 提高程式的可讀性 減低未來修改程式或新增功能時所耗費的成本  簡述 一個重構的過程應該是一連串的小步驟，一個小步驟短則５分鐘，最長應於數小時內解決。 性能特徵或許會有變化，但應讓使用者感受不到變化 原本就有 bug 的話，重構後仍應繼續存在。在確認">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-02-19T07:25:03.843Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/19/refactor-chapter2/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Chapter2 重構的原理 - 整理筆記 | 奇歐雜筆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">奇歐雜筆</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Just murmur</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/19/refactor-chapter2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chapter2 重構的原理 - 整理筆記
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-19 15:24:00 / Modified: 15:25:03" itemprop="dateCreated datePublished" datetime="2020-02-19T15:24:00+08:00">2020-02-19</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Chapter2-重構的原理-整理筆記"><a href="#Chapter2-重構的原理-整理筆記" class="headerlink" title="Chapter2 重構的原理 - 整理筆記"></a>Chapter2 重構的原理 - 整理筆記</h1><h2 id="何謂重構"><a href="#何謂重構" class="headerlink" title="何謂重構?"></a>何謂重構?</h2><h3 id="定義"><a href="#定義" class="headerlink" title="定義"></a>定義</h3><ul>
+<li>不改變行為、Input、Output 的情況下，用一系列的重構手法對軟體結構進行變動</li>
+</ul>
+<h3 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h3><ul>
+<li>提高程式的可讀性</li>
+<li>減低未來修改程式或新增功能時所耗費的成本</li>
+</ul>
+<h3 id="簡述"><a href="#簡述" class="headerlink" title="簡述"></a>簡述</h3><ul>
+<li>一個重構的過程應該是一連串的小步驟，一個小步驟短則５分鐘，最長應於數小時內解決。</li>
+<li>性能特徵或許會有變化，但應讓使用者感受不到變化</li>
+<li>原本就有 bug 的話，重構後仍應繼續存在。在確認重構完成後，再開始修正。</li>
+<li>重構 vs 性能優化：兩者都是在不改變行為、Input、Output 的情況下進行優化。但是方向不同，重構後有可能導致性能下降，性能優化後也可能導致程式可讀性下降。應盡量在當中取得一個平衡，也就是【讓使用者感受不到變化】的前提下進行重構。</li>
+</ul>
+<h3 id="兩頂帽子：加入功能與重構"><a href="#兩頂帽子：加入功能與重構" class="headerlink" title="兩頂帽子：加入功能與重構"></a>兩頂帽子：加入功能與重構</h3><ul>
+<li>兩者不會同時進行，而是一個不斷輪流進行的過程</li>
+<li>重構 → 加入功能 → 加入測試 → 重構 → … </li>
+</ul>
+<h2 id="為何重構"><a href="#為何重構" class="headerlink" title="為何重構"></a>為何重構</h2><h3 id="重構可以改善軟體的設計"><a href="#重構可以改善軟體的設計" class="headerlink" title="重構可以改善軟體的設計"></a>重構可以改善軟體的設計</h3><ul>
+<li>程式架構設計隨著需求修改，逐漸劣化，讓可讀性越來越差。</li>
+<li>消除重複的程式碼：確保每一段程式碼只描述任何事項一次，修改程式碼只需修改一個地方</li>
+</ul>
+<h3 id="重構可讓軟體更容易了解、更容易找出-bug"><a href="#重構可讓軟體更容易了解、更容易找出-bug" class="headerlink" title="重構可讓軟體更容易了解、更容易找出 bug"></a>重構可讓軟體更容易了解、更容易找出 bug</h3><ul>
+<li>寫出容易閱讀的程式碼，減少修改難度及修改時間，幫助自己也是幫助別人。</li>
+<li>程式碼容易閱讀後，更容易釐清思路看出 bug</li>
+</ul>
+<h3 id="重構可以協助提升程式編寫速度"><a href="#重構可以協助提升程式編寫速度" class="headerlink" title="重構可以協助提升程式編寫速度"></a>重構可以協助提升程式編寫速度</h3><ul>
+<li>刻版印象：重構是花時間且沒有生產力的</li>
+<li>重構後通常能有效減低未來修改程式或新增功能時所耗費的時間成本</li>
+<li>我們很難一開始就做出良好的設計，初期一定會需要重構來打造更好的基礎。因此從長遠來看，為了未來快速完成新功能，重構非常的重要。</li>
+</ul>
+<h2 id="何時該進行重構"><a href="#何時該進行重構" class="headerlink" title="何時該進行重構"></a>何時該進行重構</h2><p>同樣的事做3次，就該重構了</p>
+<h3 id="重構的種類"><a href="#重構的種類" class="headerlink" title="重構的種類"></a>重構的種類</h3><ul>
+<li><p>伺機性重構：不一定要預留時間重構，通常在加功能或除錯時，自然而然的調整</p>
+<ul>
+<li>預備性重構：便於加入新功能或擴充現有函式。Parameterize Function (358)</li>
+<li>理解性重構：讓程式碼更容易被了解。可藉由這過程釐清自己對於程式的了解。</li>
+<li>打掃性重構：程式碼重複或有一些不必要的邏輯需要做整理。此類重構優先度不高，有空再處理。</li>
+</ul>
+</li>
+<li><p>計畫性重構：優秀的程式碼也需要重構，以保持更好的狀態迎接新功能。</p>
+</li>
+<li><p>長期重構：分階段逐步完成大規模重構。例如 Restful API 轉為 GraphQL</p>
+</li>
+<li><p>程式碼複審時重構：讓團隊對於重構有共識，傳達更好的經驗給團隊，提升整個團隊能力。近似 pair programming</p>
+</li>
+</ul>
+<h3 id="我該如何向主管報告？"><a href="#我該如何向主管報告？" class="headerlink" title="我該如何向主管報告？"></a>我該如何向主管報告？</h3><p>不要說出來(?)</p>
+<h3 id="何時不該重構"><a href="#何時不該重構" class="headerlink" title="何時不該重構"></a>何時不該重構</h3><ul>
+<li>程式過於混亂，但不需修改的時候</li>
+<li>重寫比重構簡單的時候</li>
+<li>加一個小的新功能，需要大規模的重構，效益不成正比</li>
+</ul>
+<h2 id="重構的難題"><a href="#重構的難題" class="headerlink" title="重構的難題"></a>重構的難題</h2><h3 id="減緩新功能的完成速度？"><a href="#減緩新功能的完成速度？" class="headerlink" title="減緩新功能的完成速度？"></a>減緩新功能的完成速度？</h3><p>重構的目的不是為了展示程式碼有多出色，它完全是出於經濟目的。<br>重構提升我們的開發速度、更快地添加新功能、更快地修復 Bug。</p>
+<h3 id="程式碼擁有權"><a href="#程式碼擁有權" class="headerlink" title="程式碼擁有權"></a>程式碼擁有權</h3><p>你可能因為程式碼是別的部門管理，或是程式碼是提供給顧客使用的API，難以對程式碼進行重構<br>這時可以考慮使用 Rename Function (147)作為一個中介，不過這是沒有辦法中的辦法<br>最理想的狀態還是每個人都程式碼擁有權。</p>
+<h3 id="分支"><a href="#分支" class="headerlink" title="分支"></a>分支</h3><p>分支存活的時間越久，把重構成果合併至主線的難度越高<br>作者建議每天至少要和主線合併一次</p>
+<h3 id="測試"><a href="#測試" class="headerlink" title="測試"></a>測試</h3><ul>
+<li>用自檢(self-testing)程式碼確保每次重構後的行為都維持不變</li>
+<li>信任優秀的自動重構功能：例如 VScode 的重新命名符號</li>
+</ul>
+<h3 id="老舊的程式碼"><a href="#老舊的程式碼" class="headerlink" title="老舊的程式碼"></a>老舊的程式碼</h3><ul>
+<li>在程式中尋找可以插入測試的接縫，但這仍需承擔一定程度的風險</li>
+<li>不建議一次重構完畢，試著分解成多個小部分，每次都改善一小部分，逐步改善程式碼體質</li>
+</ul>
+<h3 id="資料庫"><a href="#資料庫" class="headerlink" title="資料庫"></a>資料庫</h3><p>預先撰寫遷移腳本 migration script 來執行 table schema 的重要修改，如：欄位名稱重新命名。</p>
+<h2 id="重構、架構與Yangi"><a href="#重構、架構與Yangi" class="headerlink" title="重構、架構與Yangi"></a>重構、架構與Yangi</h2><ul>
+<li>軟體架構設計往往被認為一開始就要一次到位，事實上是需要根據需求不斷的重構來優化軟體架構。</li>
+<li>為了不一定會發生的未來增加架構的彈性，事實上是一種過度設計，反而會降低對變化的應變能力。</li>
+<li>除非認為未來重構這塊比較困難，否則不需現在加入彈性機制，只要就現行的需求做到適當的重構即可。</li>
+</ul>
+<h2 id="重構與更廣泛的軟體開發程序"><a href="#重構與更廣泛的軟體開發程序" class="headerlink" title="重構與更廣泛的軟體開發程序"></a>重構與更廣泛的軟體開發程序</h2><ul>
+<li>持續整合、自檢程式碼以及重構 (test-drivern development)</li>
+<li>快速回應、小步修改、持續交付，讓軟體持續處於可發表的狀態</li>
+</ul>
+<h2 id="重構與性能"><a href="#重構與性能" class="headerlink" title="重構與性能"></a>重構與性能</h2><ul>
+<li>重構常常被認為會為了可讀性而寫出降低性能的程式碼。</li>
+<li>作者認為，編寫快速軟體的訣竅，應是先重構出一個可讀性高、可調整的軟體，再調整成滿意的速度，在可讀性與性能間取得平衡。</li>
+<li>性能優化應著重於 bottleneck (後端通常是資料庫連線與 SQL 查詢)</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Refactor/" rel="tag"># Refactor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/17/refactor-chapter1/" rel="next" title="Chapter1 重構：第一個範例 - 使用到的重構手法筆記">
+                  <i class="fa fa-chevron-left"></i> Chapter1 重構：第一個範例 - 使用到的重構手法筆記
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Chapter2-重構的原理-整理筆記"><span class="nav-number">1.</span> <span class="nav-text">Chapter2 重構的原理 - 整理筆記</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#何謂重構"><span class="nav-number">1.1.</span> <span class="nav-text">何謂重構?</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定義"><span class="nav-number">1.1.1.</span> <span class="nav-text">定義</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#效果"><span class="nav-number">1.1.2.</span> <span class="nav-text">效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#簡述"><span class="nav-number">1.1.3.</span> <span class="nav-text">簡述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#兩頂帽子：加入功能與重構"><span class="nav-number">1.1.4.</span> <span class="nav-text">兩頂帽子：加入功能與重構</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#為何重構"><span class="nav-number">1.2.</span> <span class="nav-text">為何重構</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重構可以改善軟體的設計"><span class="nav-number">1.2.1.</span> <span class="nav-text">重構可以改善軟體的設計</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重構可讓軟體更容易了解、更容易找出-bug"><span class="nav-number">1.2.2.</span> <span class="nav-text">重構可讓軟體更容易了解、更容易找出 bug</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重構可以協助提升程式編寫速度"><span class="nav-number">1.2.3.</span> <span class="nav-text">重構可以協助提升程式編寫速度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#何時該進行重構"><span class="nav-number">1.3.</span> <span class="nav-text">何時該進行重構</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#重構的種類"><span class="nav-number">1.3.1.</span> <span class="nav-text">重構的種類</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#我該如何向主管報告？"><span class="nav-number">1.3.2.</span> <span class="nav-text">我該如何向主管報告？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#何時不該重構"><span class="nav-number">1.3.3.</span> <span class="nav-text">何時不該重構</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重構的難題"><span class="nav-number">1.4.</span> <span class="nav-text">重構的難題</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#減緩新功能的完成速度？"><span class="nav-number">1.4.1.</span> <span class="nav-text">減緩新功能的完成速度？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#程式碼擁有權"><span class="nav-number">1.4.2.</span> <span class="nav-text">程式碼擁有權</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分支"><span class="nav-number">1.4.3.</span> <span class="nav-text">分支</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#測試"><span class="nav-number">1.4.4.</span> <span class="nav-text">測試</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#老舊的程式碼"><span class="nav-number">1.4.5.</span> <span class="nav-text">老舊的程式碼</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#資料庫"><span class="nav-number">1.4.6.</span> <span class="nav-text">資料庫</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重構、架構與Yangi"><span class="nav-number">1.5.</span> <span class="nav-text">重構、架構與Yangi</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重構與更廣泛的軟體開發程序"><span class="nav-number">1.6.</span> <span class="nav-text">重構與更廣泛的軟體開發程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重構與性能"><span class="nav-number">1.7.</span> <span class="nav-text">重構與性能</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Kyoforing"
+    src="https://i.imgur.com/Th4Am8x.jpg">
+  <p class="site-author-name" itemprop="name">Kyoforing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kyoforing</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
