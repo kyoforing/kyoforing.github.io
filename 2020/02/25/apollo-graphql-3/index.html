@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Re:從零開始的GraphQL生活 Implelemt Shopify Design RuleRe:ゼロから始める GraphQL 生活 Implelemt Shopify Design Rule  Tutorial: Designing a GraphQL API  Step1. A Bird’s-Eye View123Rule #1: Always start with a high-leve">
+<meta name="keywords" content="Apollo,GraphQL,Koa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;02&#x2F;25&#x2F;apollo-graphql-3&#x2F;index.html">
+<meta property="og:site_name" content="奇歐雜筆">
+<meta property="og:description" content="Re:從零開始的GraphQL生活 Implelemt Shopify Design RuleRe:ゼロから始める GraphQL 生活 Implelemt Shopify Design Rule  Tutorial: Designing a GraphQL API  Step1. A Bird’s-Eye View123Rule #1: Always start with a high-leve">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;eZZ6mNb.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;thhMCn7.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;ITQa6OQ.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;ZGI1Alt.png">
+<meta property="og:updated_time" content="2020-02-25T03:43:18.034Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;eZZ6mNb.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/25/apollo-graphql-3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule | 奇歐雜筆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">奇歐雜筆</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Just murmur</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 11:31:00 / Modified: 11:43:18" itemprop="dateCreated datePublished" datetime="2020-02-25T11:31:00+08:00">2020-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Re-從零開始的GraphQL生活-Implelemt-Shopify-Design-Rule"><a href="#Re-從零開始的GraphQL生活-Implelemt-Shopify-Design-Rule" class="headerlink" title="Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule"></a>Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule</h1><p>Re:ゼロから始める GraphQL 生活 Implelemt Shopify Design Rule</p>
+<hr>
+<h3 id="Tutorial-Designing-a-GraphQL-API"><a href="#Tutorial-Designing-a-GraphQL-API" class="headerlink" title="Tutorial: Designing a GraphQL API"></a>Tutorial: Designing a GraphQL API</h3><p><img src="https://i.imgur.com/eZZ6mNb.png" alt=""></p>
+<hr>
+<h4 id="Step1-A-Bird’s-Eye-View"><a href="#Step1-A-Bird’s-Eye-View" class="headerlink" title="Step1. A Bird’s-Eye View"></a>Step1. A Bird’s-Eye View</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #1: </span><br><span class="line">Always start with a high-level view of the objects and their relationships </span><br><span class="line">before you deal with specific fields.</span><br></pre></td></tr></table></figure>
+<p>設計 Schema 時，永遠先以高層次物件的結構與關係為方向去思考，以 ER model 概念大略設計schema後，再去處理細節的欄位。在 Query 裡建議使用「名詞」而非「動名詞」，更能夠表達 Graph 的概念。</p>
+<hr>
+<h4 id="Step2-A-Clean-Slate"><a href="#Step2-A-Clean-Slate" class="headerlink" title="Step2. A Clean Slate"></a>Step2. A Clean Slate</h4><p>考量API實作細節：假設 Author 與 Post 是多對多的關係。<br>以 ER model 的概念來說，必須儲存 Author 與 Post 多對多的關聯資料，但這並不是 API 實現的部分，故剔除多對多的 schema。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #2: </span><br><span class="line">Never expose implementation details in your API design.</span><br></pre></td></tr></table></figure>
+<p>API設計上不暴露實作細節：以案例來說，如果 Post 分為教師公告與學生發問 2種，合併為同一個 Post schema 隱藏實作細節，是較好的設計，但因情況不同可自行斟酌。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #3: </span><br><span class="line">Design your API around the business domain, </span><br><span class="line">not the implementation, user-interface, or legacy APIs.</span><br></pre></td></tr></table></figure>
+<p>依照商務領域去設計 schema，而不應完全實作 GUI 所需的欄位或是複製傳統的 Restful API。例如教師公告與學生發問是 2 種不同 GUI，但仍可歸類為同一種 schema。</p>
+<hr>
+<h4 id="Step3-Adding-Detail"><a href="#Step3-Adding-Detail" class="headerlink" title="Step3. Adding Detail"></a>Step3. Adding Detail</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #4: </span><br><span class="line">It&apos;s easier to add fields than to remove them.</span><br></pre></td></tr></table></figure>
+<p>在完成上述作業後，我們可以重新加上所需的欄位。要注意 GraphQL 是公開文件，應由實際需求和案例決定，不要隨意透露資料庫欄位細節。<br>新增欄位簡單，但是更改或刪除它們難度不低。尤其是標記 ! 的必填欄位，優點是可以強化 Schema 的驗證邏輯，但缺點也不少，比如</p>
+<ol>
+<li>難以擴展 Schema<br>修改一個 non-null 欄位意味著 breaking change 。預測未來的 Schema 變化是不實際的，把 nullable 欄位轉向 non-null 很容易，但要轉回來的成本會高出很多。<br>打個比方，有可能今天有個 User type ，規定一定要有名字與生日，那假如有一天註冊方式改用 Oauth 或其他方式使得 name 非必要，或是要修改能看到 age 的權限等等，都會限制你的 Schema 。<br>而且因為前端會預期得到 non-null ，所以如果 deprecate 掉這個欄位，還是要提供 default 值。</li>
+<li>Non-null 欄位可能會放大錯誤</li>
+</ol>
+<p>比較適合用 ! 標記必填欄位的地方</p>
+<ol>
+<li>id 欄位</li>
+<li>parent Object</li>
+<li>Boolean type: boolean 欄位有 null 值是不應該存在的</li>
+<li>[type!] 欄位: 一個有值為 null 的 array 是不應該存在的</li>
+</ol>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #5: </span><br><span class="line">Major business-object types should always implement Node.</span><br></pre></td></tr></table></figure>
+<p>在大型的 GraphQL Schema 中，一般會推薦所有主要商業邏輯物件都要實作 Node interface type，因為通常這些物件在 database 中都有 id ，實作 Node interface type 可以明確告訴 Client 這是一個重要概念的物件，並且可透過 id 的操作來做 caching 及 batching。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  ... </span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  interface Node &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Author implements Node &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type Post implements Node &#123; ... &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #6: </span><br><span class="line">Group closely-related fields together into subobjects.</span><br></pre></td></tr></table></figure>
+<p>密切相關的欄位可以單獨抽離出為子 type。<br>例如 Post的 title 和 author_name 這 2 個欄位關係密切，但可能必須考慮另外一個狀況：如果 Post 為自動產生，則 Author 可能為空值。所以將這 2 個欄位獨立為 1 個 type，且 Post 的 Author 不設為 Not null 是較好的設計。</p>
+<p><img src="https://i.imgur.com/thhMCn7.png" alt=""></p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #7: </span><br><span class="line">Always check whether list fields should be paginated or not.</span><br></pre></td></tr></table></figure>
+<p>隨時確認資料是否做分頁。</p>
+<ul>
+<li><p>offset-based</p>
+<ul>
+<li>優點：可直接跳到指定分頁</li>
+<li>缺點：資料量越大，offset消耗效能越大。資料異動時，分頁起始資料可能錯誤。</li>
+<li>適合資料不常異動、效能要求不高及需要顯示分頁的功能（如部分後台管理功能）<br><img src="https://i.imgur.com/ITQa6OQ.png" alt=""></li>
+</ul>
+</li>
+<li><p>cursor-based</p>
+<ul>
+<li>優點：資料量大時，仍有不錯效能。資料異動時，不會發生錯誤。</li>
+<li>缺點：無法跳至指定分頁。需另外為 cursor 欄位建立 index。</li>
+<li>適合資料大量異動、效能要求較高及資料為漸進式呈現。(如下捲式分頁)<br><img src="https://i.imgur.com/ZGI1Alt.png" alt=""></li>
+</ul>
+</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #8: </span><br><span class="line">Always use object references instead of ID fields.</span><br></pre></td></tr></table></figure>
+<p>應該將物件關聯用的ID欄位(類似外來鍵FK欄位) 獨立出 type，取代原有的 ID 欄位。<br>在 Restful API 的設計上，我們很常發生一個物件有多個關聯用 ID 欄位，藉這些 ID 欄位來取得其他物件的相關資料。但在 GraphQL，這是一個 anti-pattern，這是為了確保每一個 type 物件只會有一個 id 作為辨識。<br>若獨立的出來的 type 該 id 欄位早已在其他 type 存在，那事實上可以考慮用既有 type 來取代即可，利用 FK 資料串接可於 model 和 resolver 實作</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #9: </span><br><span class="line">Choose field names based on what makes sense, </span><br><span class="line">not based on the implementation or </span><br><span class="line">what the field is called in legacy APIs.</span><br></pre></td></tr></table></figure>
+<p>取一個比較平易近人而非過於技術的名稱<br>例如: bodyHtml 改名為 description</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #10: </span><br><span class="line">Use custom scalar types when you&apos;re exposing something </span><br><span class="line">with specific semantic value.</span><br></pre></td></tr></table></figure>
+<p>GraphQL 預設總共有 5 種 Scalar Type。因 GraphQL 的一大強處就是 type validation ，但當功能需求越開越多時，開始會存取 url, date, positive integer 等等特定格式的資料，只使用 String 或 Int 做 type validation 的效益不高，過於寬鬆。這時候可以自定義的 Scalar Type 來幫助你達到以下三點：</p>
+<ol>
+<li>讓 Clinet 與 Server 的開發者對於資料格式有共同的認知</li>
+<li>強迫 Client 的送出正確格式的 query</li>
+<li>強迫 Server 的回覆正確格式的 response</li>
+</ol>
+<p>Scalar Type 擴充包<br><a href="https://github.com/Urigo/graphql-scalars" target="_blank" rel="noopener">https://github.com/Urigo/graphql-scalars</a></p>
+<p>那麼什麼時候我們需要 Custom Scalar Type?</p>
+<ol>
+<li>當你需要一個有特殊語意的值時，就使用 Custom Scalar Type</li>
+<li>但如果你的值是比較模糊的格式如 email，這類在 client 端檢查較為複雜的格式的話，建議使用寬一點的 type 如 String</li>
+<li>而如果你的值是定義比較明確如 DateTime 就是要 ISO 格式不接受其他，那就可以考慮使用 Custom Scalar Type 來規範 Client 不能亂傳</li>
+</ol>
+<p>開發初期可先使用 String，只有當對於特殊語意的 Scalar Type 的需求夠多時，比如每個 Business Model 都要有個 createdAt ，那可以考慮使用為 createdAt 建立一個 Date Scalar Type 。</p>
+<p>否則有時候 Custom Scalar Type 也是把雙面刃，用錯時機點可能造成 Schema 規範過多不夠彈性。</p>
+<p>最後務求團隊對於所有 Scalar Type 使用上是有共識的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//typeDef</span></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  scalar PositiveInt</span></span><br><span class="line"><span class="string">  ...   </span></span><br><span class="line"><span class="string">  type Pagination &#123;</span></span><br><span class="line"><span class="string">    page: Int</span></span><br><span class="line"><span class="string">    pages: Int</span></span><br><span class="line"><span class="string">    count: Int</span></span><br><span class="line"><span class="string">    limit: PositiveInt</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//resolvers</span></span><br><span class="line"><span class="keyword">const</span> &#123; PositiveIntResolver &#125; = <span class="built_in">require</span>(<span class="string">'graphql-scalars'</span>);</span><br><span class="line"><span class="keyword">const</span> allResolver = &#123;</span><br><span class="line">    PositiveInt: PositiveIntResolver,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> resolvers = [allResolver, authorResolver, postResolver];</span><br></pre></td></tr></table></figure>
+
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #11: </span><br><span class="line">Use enums for fields which can only take a specific set of values</span><br></pre></td></tr></table></figure>
+<p>在 schema 使用 enum 來定義值集合。</p>
+<hr>
+<h4 id="Step4-Business-Logic"><a href="#Step4-Business-Logic" class="headerlink" title="Step4. Business Logic"></a>Step4. Business Logic</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #12: </span><br><span class="line">The API should provide business logic, not just data. </span><br><span class="line">Complex calculations should be done on the server, </span><br><span class="line">in one place, not on the client, in many places.</span><br></pre></td></tr></table></figure>
+<p>API 應該不只提供資料，也要能呈現商業邏輯。複雜的計算應該交由後端來處理，而非散落各處。<br>例如有一個 Author 底下有 posts 清單欄位，但前端這時可能只需要書本數量，這時可以提供一個 postCount 欄位，讓前端不用取得 posts 清單來計算數量。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #13: </span><br><span class="line">Provide the raw data too, </span><br><span class="line">even when there&apos;s business logic around it.</span><br></pre></td></tr></table></figure>
+<p>即時呈現了商業邏輯，也還是要提供 raw data。前端仍有可能想要自己處理資料邏輯。</p>
+<hr>
+<h4 id="Step5-Mutation"><a href="#Step5-Mutation" class="headerlink" title="Step5. Mutation"></a>Step5. Mutation</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #14: </span><br><span class="line">Write separate mutations for separate logical actions on a resource</span><br></pre></td></tr></table></figure>
+<p>一個邏輯行為寫一個 mutation。<br>例如：一個商品如果所有狀態更新寫在 update，會讓狀況顯得混亂，故先拆成基本的 5 個 mutation</p>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>delete</li>
+<li>publish</li>
+<li>unpublish</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #15: </span><br><span class="line">Mutating relationships is really complicated and </span><br><span class="line">not easily summarized into a snappy rule.</span><br></pre></td></tr></table></figure>
+<p>我們仍然覺得部分 mutation 負擔太多責任，並試圖去解構它。大略上有以下 3 種常見方式</p>
+<ol>
+<li>一次更新所有資料。例如：updateOrderProducts (products: [Product!]!)</li>
+<li>一次更新部分資料。例如：deleteOrderProducts(ids: [ID!]!)</li>
+<li>一次更新一筆資料。例如：addProduct(input: Product!)</li>
+</ol>
+<p>經驗上來說，可以考量以下幾點作為選擇依據：</p>
+<ol>
+<li>當資料量大、適合第二三種，但如果資料量不大且結構簡單，那第一種最簡單。</li>
+<li>一次做大量簡單操作時，第一三種皆可，第二種比較難用 ids 來表達操作內容。</li>
+<li>如果一次更新父物件與子物件時：</li>
+</ol>
+<ul>
+<li>只是修改關係 (如 user 與 collection)，這三種方式皆可</li>
+<li>有強烈關聯或修改資料時 (如 user 與 order)，這建議第三種方式</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #16: </span><br><span class="line">When writing separate mutations for relationships, </span><br><span class="line">consider whether it would be useful </span><br><span class="line">for the mutations to operate on multiple elements at once.</span><br></pre></td></tr></table></figure>
+<p>如果是處理物件關係資料的 mutation，可以考慮批次處理<br>最後 mutation 會拆成如下</p>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>delete</li>
+<li>publish</li>
+<li>unpublish</li>
+<li>addProducts</li>
+<li>removeProducts</li>
+<li>reorderProducts</li>
+</ul>
+<hr>
+<h4 id="Input-Structure-Part-1"><a href="#Input-Structure-Part-1" class="headerlink" title="Input: Structure, Part 1"></a>Input: Structure, Part 1</h4><p>在看完 Mutation，我們來看 input 的部分。在看過許多真實環境資料，常見到有人會為多個 mutation 定義一個共同的 input 去處理所有的屬性，這並不是推薦的設計方式，我們應盡可能讓 input 簡單。</p>
+<ol>
+<li>針對許多簡單的 mutation，我們只需要用 ID/IDs 來處理，例如：</li>
+</ol>
+<ul>
+<li>delete, publish and unpublish 使用 collection ID</li>
+<li>addProducts, removeProducts 使用 collection IDs 和 product IDs</li>
+</ul>
+<ol start="2">
+<li>針對較為複雜的 mutation，則需要 input 來支援，例如：</li>
+</ol>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>reorderProducts</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #17: </span><br><span class="line">Prefix mutation names with the object </span><br><span class="line">they are mutating for alphabetical grouping </span><br><span class="line">(e.g. use orderCancel instead of cancelOrder).</span><br></pre></td></tr></table></figure>
+<p>Shopify 內部制定的規則為 TypeName<action>，例如 orderCreate, orderUpdate, orderRemove，在 GraphQL API排序上較為整齊。不過這基本上見仁見智，只要團隊規範好命名方式，然後持續遵守就可以了。</p>
+<hr>
+<h4 id="Input-Scalars"><a href="#Input-Scalars" class="headerlink" title="Input: Scalars"></a>Input: Scalars</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #18: </span><br><span class="line">Only make input fields required </span><br><span class="line">if they&apos;re actually semantically required for the mutation to proceed.</span><br></pre></td></tr></table></figure>
+<p>針對 input field，除了語意上必定要做處理的欄位，否則不隨意加上必填屬性，因為你無法預期客戶的需求</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule #19: </span><br><span class="line">Use weaker types for inputs (e.g. String instead of Email) </span><br><span class="line">when the format is unambiguous and client-side validation is complex. </span><br><span class="line">This lets the server run all non-trivial validations at once and </span><br><span class="line">return the errors in a single place in a single format, </span><br><span class="line">simplifying the client.</span><br></pre></td></tr></table></figure>
+<p>輸入的格式若是非常明確但前端驗證相對複雜，就建議用 Weaker Type ，讓後端去跑驗證程序。比如要輸入 Html 字串，就建議直接用 String ，接下來交給後端去檢查，一方面後端可以做更仔細的檢查，另一方面也避免前後端各自維護檢查邏輯的程式。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule #20: </span><br><span class="line">Use stronger types for inputs (e.g. DateTime instead of String) </span><br><span class="line">when the format may be ambiguous and client-side validation is simple. </span><br><span class="line">This provides clarity and encourages clients to use stricter </span><br><span class="line">input controls </span><br><span class="line">(e.g. a date-picker widget instead of a free-text field).</span><br></pre></td></tr></table></figure>
+<p>如果輸入的格式模糊 (可能值很多)且前端驗證相對簡單，但就很適合使用 Strong Type (也就是使用 custom scalar type) 。比如 Date 格式，前端可能輸入千百種格式 (Unix timestamp、ISO、日期字串…) ，這時候限制前端輸入的 Date 格式，而前端也只需要做個日期選擇器，就避免了很多不必要的驗證與檢查。<br>另外一般欄位也非常推薦使用 enum 這種 strong type scalar。</p>
+<hr>
+<h4 id="Input-Structure-Part-2"><a href="#Input-Structure-Part-2" class="headerlink" title="Input: Structure, Part 2"></a>Input: Structure, Part 2</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #21: </span><br><span class="line">Structure mutation inputs to reduce duplication, </span><br><span class="line">even if this requires relaxing requiredness constraints </span><br><span class="line">on certain fields.</span><br></pre></td></tr></table></figure>
+<p>應盡量讓 mutation input 的結構減少重複，即使裡面有些欄位是必填<br>例如說，原本 mutation 如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutation &#123;</span><br><span class="line">  postCreate(title: <span class="built_in">String</span>!, text: <span class="built_in">String</span>)</span><br><span class="line">  postUpdate(post_id: ID!, title: <span class="built_in">String</span>, text: <span class="built_in">String</span> )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很明顯可以看到 postCreate 與 postUpdate 有 2 個不同</p>
+<ol>
+<li>postUpdate 多1個 post_id 欄位</li>
+<li>postCreate title 是必填，postUpdate title 則非必填</li>
+</ol>
+<p>為了能讓 Mutation 可讀性更高、更簡潔，我們將 PostInput 提出來如下</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutation &#123;</span><br><span class="line">  postCreate(input: PostInput!)</span><br><span class="line">  postUpdate(post_id: ID!, input: PostInput!)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">input PostInput &#123;</span><br><span class="line">  title: <span class="built_in">String</span></span><br><span class="line">  text: <span class="built_in">String</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但犧牲的就是原本 title 的必填屬性，這部分設計上可自行斟酌。</p>
+<hr>
+<h4 id="Output"><a href="#Output" class="headerlink" title="Output"></a>Output</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Rule #22: </span><br><span class="line">Mutations should provide user/business-level errors </span><br><span class="line">via a userErrors field on the mutation payload. </span><br><span class="line">The top-level query errors entry is </span><br><span class="line">reserved for client and server-level errors.</span><br></pre></td></tr></table></figure>
+<p>在設計 mutation output type 時，最簡單的就是直接回傳被更改的 type ，如 authorUpdate 就應該回傳 Author type 更新後的資料，但軟體的設計常常跟不上需求，有可能今天需要增加錯誤處理邏輯或是提供更多 mutation 的詳細資訊如成功/失敗次數時，只用一個現成的 object type 就有了擴展的困難。</p>
+<p>因此，可以考慮為每一個 mutation 回傳資料都設計一個專屬的 object type，authorUpdate 的 Output 為 AuthorUpdatePayload</p>
+<p>這邊 shopify 建議可以定義一個 userErrors 來表達user/business-level 錯誤，而那種 data 層級的 error 交給 GraphQL 的 Type Validation。這邊 [UserError!]! 保證就算沒有錯誤也會回傳空 array。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AuthorUpdatePayload &#123;</span><br><span class="line">  userErrors: [UserError!]!</span><br><span class="line">  author: Author</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserError &#123;</span><br><span class="line">  message: <span class="built_in">String</span>!</span><br><span class="line"></span><br><span class="line">  # Path to input field which caused the error.</span><br><span class="line">  field: [<span class="built_in">String</span>!]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #23: </span><br><span class="line">Most payload fields for a mutation should be nullable,</span><br><span class="line">unless there is really a value to return in every possible error case.</span><br></pre></td></tr></table></figure>
+<p>payload 裡面大部分的欄位建議不要加上 non-null 以免限制 schema 的發展</p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Apollo/" rel="tag"># Apollo</a>
+              <a href="/tags/GraphQL/" rel="tag"># GraphQL</a>
+              <a href="/tags/Koa/" rel="tag"># Koa</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/25/apollo-graphql-2/" rel="next" title="Re:從零開始的GraphQL生活 Real Case">
+                  <i class="fa fa-chevron-left"></i> Re:從零開始的GraphQL生活 Real Case
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/02/25/apollo-graphql-4/" rel="prev" title="Re:從零開始的GraphQL生活 補充">
+                  Re:從零開始的GraphQL生活 補充 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Re-從零開始的GraphQL生活-Implelemt-Shopify-Design-Rule"><span class="nav-number">1.</span> <span class="nav-text">Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Tutorial-Designing-a-GraphQL-API"><span class="nav-number">1.0.1.</span> <span class="nav-text">Tutorial: Designing a GraphQL API</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Step1-A-Bird’s-Eye-View"><span class="nav-number">1.0.1.1.</span> <span class="nav-text">Step1. A Bird’s-Eye View</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step2-A-Clean-Slate"><span class="nav-number">1.0.1.2.</span> <span class="nav-text">Step2. A Clean Slate</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step3-Adding-Detail"><span class="nav-number">1.0.1.3.</span> <span class="nav-text">Step3. Adding Detail</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step4-Business-Logic"><span class="nav-number">1.0.1.4.</span> <span class="nav-text">Step4. Business Logic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Step5-Mutation"><span class="nav-number">1.0.1.5.</span> <span class="nav-text">Step5. Mutation</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Input-Structure-Part-1"><span class="nav-number">1.0.1.6.</span> <span class="nav-text">Input: Structure, Part 1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Input-Scalars"><span class="nav-number">1.0.1.7.</span> <span class="nav-text">Input: Scalars</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Input-Structure-Part-2"><span class="nav-number">1.0.1.8.</span> <span class="nav-text">Input: Structure, Part 2</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Output"><span class="nav-number">1.0.1.9.</span> <span class="nav-text">Output</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Kyoforing"
+    src="https://i.imgur.com/Th4Am8x.jpg">
+  <p class="site-author-name" itemprop="name">Kyoforing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kyoforing</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

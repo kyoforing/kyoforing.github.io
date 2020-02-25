@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="Re:從零開始的GraphQL生活 OverviewRe:ゼロから始める GraphQL 生活 Overview  初探GraphQL GraphQL Summit http:&#x2F;&#x2F;bit.ly&#x2F;2YWorm8 探索自己的 Github 資訊 https:&#x2F;&#x2F;developer.github.com&#x2F;v4&#x2F;explorer&#x2F; Apollo Docs https:&#x2F;&#x2F;www.apollographql">
+<meta name="keywords" content="Apollo,GraphQL,Koa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Re:從零開始的GraphQL生活 Overview">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;02&#x2F;25&#x2F;apollo-graphql-1&#x2F;index.html">
+<meta property="og:site_name" content="奇歐雜筆">
+<meta property="og:description" content="Re:從零開始的GraphQL生活 OverviewRe:ゼロから始める GraphQL 生活 Overview  初探GraphQL GraphQL Summit http:&#x2F;&#x2F;bit.ly&#x2F;2YWorm8 探索自己的 Github 資訊 https:&#x2F;&#x2F;developer.github.com&#x2F;v4&#x2F;explorer&#x2F; Apollo Docs https:&#x2F;&#x2F;www.apollographql">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;hm0Igna.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;Aa4AFPv.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;s39lOc2.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;9tAkcbJ.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;50ryp8H.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;A2RQtka.png">
+<meta property="og:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;MKEMPOJ.png">
+<meta property="og:updated_time" content="2020-02-25T03:30:22.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https:&#x2F;&#x2F;i.imgur.com&#x2F;hm0Igna.png">
+
+<link rel="canonical" href="http://yoursite.com/2020/02/25/apollo-graphql-1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Re:從零開始的GraphQL生活 Overview | 奇歐雜筆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">奇歐雜筆</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Just murmur</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Re:從零開始的GraphQL生活 Overview
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 11:29:00 / Modified: 11:30:22" itemprop="dateCreated datePublished" datetime="2020-02-25T11:29:00+08:00">2020-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Re-從零開始的GraphQL生活-Overview"><a href="#Re-從零開始的GraphQL生活-Overview" class="headerlink" title="Re:從零開始的GraphQL生活 Overview"></a>Re:從零開始的GraphQL生活 Overview</h1><p>Re:ゼロから始める GraphQL 生活 Overview</p>
+<hr>
+<h2 id="初探GraphQL"><a href="#初探GraphQL" class="headerlink" title="初探GraphQL"></a>初探GraphQL</h2><ul>
+<li>GraphQL Summit <a href="http://bit.ly/2YWorm8" target="_blank" rel="noopener">http://bit.ly/2YWorm8</a></li>
+<li>探索自己的 Github 資訊 <a href="https://developer.github.com/v4/explorer/" target="_blank" rel="noopener">https://developer.github.com/v4/explorer/</a></li>
+<li>Apollo Docs <a href="https://www.apollographql.com/docs/" target="_blank" rel="noopener">https://www.apollographql.com/docs/</a></li>
+<li>Airbnb 案例 <a href="https://www.infoq.cn/article/WaZ5OMwZ16o86uGv7p2z" target="_blank" rel="noopener">https://www.infoq.cn/article/WaZ5OMwZ16o86uGv7p2z</a><ul>
+<li>Migration 的策略：採用 Incremental adoption，分為五個階段。每個階段都是shippable 且 fully funcational 的產品。<ul>
+<li>第一階段：Restful → GraphQL。實作 Adapater 過渡、根據 Gql Schema 用 codegen 自動產出對應的 typescript interface。</li>
+<li>第二階段：Propagate Types。加強 TypeScript Types，來提高後續階段的實作信心。在此階段不碰觸任何 Runtime behavior 與產品行為。</li>
+<li>第三階段：Apollo HOC → Hooks、Redux Store → Apollo Cache</li>
+<li>第四階段：Granular Query Fragements。逐步修改 Component Tree 抓取資料邏輯，解決第一階段的 Over-fetching issue。 </li>
+<li>第五階段：State Management：Redux Store　由　React State、Context 與 Apollo cache + resolvers 取代，讓整個 State management 上有一致的 mental model，並且減少 Redux 帶來的 boilerplate，還能享用 Apollo 自帶的 Caching 功能。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="1-GraphQL-server-with-a-connected-database"><a href="#1-GraphQL-server-with-a-connected-database" class="headerlink" title="1. GraphQL server with a connected database"></a>1. GraphQL server with a connected database</h3><p><img src="https://i.imgur.com/hm0Igna.png" alt=""></p>
+<hr>
+<h3 id="2-With-a-connected-database-and-Integration-of-existing-system"><a href="#2-With-a-connected-database-and-Integration-of-existing-system" class="headerlink" title="2. With a connected database and Integration of existing system"></a>2. With a connected database and Integration of existing system</h3><p><img src="https://i.imgur.com/Aa4AFPv.png" alt=""></p>
+<hr>
+<h3 id="3-GraphQL-layer-that-integrates-existing-systems"><a href="#3-GraphQL-layer-that-integrates-existing-systems" class="headerlink" title="3. GraphQL layer that integrates existing systems"></a>3. GraphQL layer that integrates existing systems</h3><p><img src="https://i.imgur.com/s39lOc2.png" alt=""></p>
+<hr>
+<p><img src="https://i.imgur.com/9tAkcbJ.png" alt=""></p>
+<hr>
+<h2 id="說明一下實作的目標…"><a href="#說明一下實作的目標…" class="headerlink" title="說明一下實作的目標…"></a>說明一下實作的目標…</h2><p><a href="https://github.com/kyoforing/koa-apollo-server-sample" target="_blank" rel="noopener">https://github.com/kyoforing/koa-apollo-server-sample</a></p>
+<hr>
+<h3 id="Demo-To-run-a-basic-GraphQL-server-with-existing-APIs"><a href="#Demo-To-run-a-basic-GraphQL-server-with-existing-APIs" class="headerlink" title="Demo: To run a basic GraphQL server with existing APIs."></a>Demo: To run a basic GraphQL server with existing APIs.</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; ApolloServer, gql &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-koa'</span>);</span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    hello: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    hello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">'Hello world!'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">&#125;);</span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br></pre></td></tr></table></figure>
+<p>VS code 裝 GraphQL 套件提高可讀性 (Author: Prisma)</p>
+<hr>
+<h3 id="GraphLQ-API-兩大基石：-Schema、Resolver"><a href="#GraphLQ-API-兩大基石：-Schema、Resolver" class="headerlink" title="GraphLQ API 兩大基石： Schema、Resolver"></a>GraphLQ API 兩大基石： Schema、Resolver</h3><ul>
+<li>Schema 定義 GraphQL API 可用的方法、Input/Output 的規範</li>
+<li>Resolver 實作 Schema 定義的方法及Input/Ouput</li>
+<li>Resolver 不可實作 Schema 不存在的方法或違反 Input/Output 格式</li>
+</ul>
+<h4 id="前端根據-Schema-菜單-下-Query-點菜-，Resolver-廚房-回傳結果-前端所要的料理"><a href="#前端根據-Schema-菜單-下-Query-點菜-，Resolver-廚房-回傳結果-前端所要的料理" class="headerlink" title="前端根據 Schema (菜單) 下 Query (點菜)，Resolver (廚房) 回傳結果 (前端所要的料理)"></a>前端根據 Schema (菜單) 下 Query (點菜)，Resolver (廚房) 回傳結果 (前端所要的料理)</h4><hr>
+<h3 id="Demo-Schema-再稍微複雜一點"><a href="#Demo-Schema-再稍微複雜一點" class="headerlink" title="Demo: Schema 再稍微複雜一點"></a>Demo: Schema 再稍微複雜一點</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; ApolloServer, gql &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-koa'</span>);</span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: Int</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    age: Int</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    me: User</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    me: <span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="keyword">return</span> &#123;<span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'Kyo'</span>, <span class="attr">age</span>: <span class="number">18</span>&#125; &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">&#125;);</span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><img src="https://i.imgur.com/50ryp8H.png" alt=""></p>
+<hr>
+<h3 id="Object-Type"><a href="#Object-Type" class="headerlink" title="Object Type"></a>Object Type</h3><ul>
+<li>type Query 定義查詢方法</li>
+<li>type Mutation 定義新刪修方法</li>
+<li>type XXX 自定義 Object type</li>
+</ul>
+<h3 id="Default-Scalar-Type-Field-Type"><a href="#Default-Scalar-Type-Field-Type" class="headerlink" title="Default Scalar Type (Field Type)"></a>Default Scalar Type (Field Type)</h3><table>
+<thead>
+<tr>
+<th>Scalar Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Int</td>
+<td>整數</td>
+</tr>
+<tr>
+<td>Float</td>
+<td>浮點數</td>
+</tr>
+<tr>
+<td>String</td>
+<td>字串</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>True or False</td>
+</tr>
+<tr>
+<td>ID</td>
+<td>識別碼。不限type，只管值有沒有重複</td>
+</tr>
+</tbody></table>
+<ul>
+<li>利用 Scalar Type 幫你做型別檢查時要注意：null 在任何 Scalar Type 都不會報錯</li>
+<li>除了 Default scalar type 外，也可以自訂義 Scalar type。</li>
+</ul>
+<hr>
+<h3 id="利用自訂義-Enum-作為-Scalar-Type"><a href="#利用自訂義-Enum-作為-Scalar-Type" class="headerlink" title="利用自訂義 Enum 作為 Scalar Type"></a>利用自訂義 Enum 作為 Scalar Type</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: Int</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    age: Int,</span></span><br><span class="line"><span class="string">    personType: PersonType</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    me: User</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  enum PersonType &#123;</span></span><br><span class="line"><span class="string">    CHILD</span></span><br><span class="line"><span class="string">    ADULT</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    me: <span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="keyword">return</span> &#123;<span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'Kyo'</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">personType</span>: <span class="string">'ADULT'</span>&#125; &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="讓註解出現在你的文件"><a href="#讓註解出現在你的文件" class="headerlink" title="讓註解出現在你的文件"></a>讓註解出現在你的文件</h3><table>
+<thead>
+<tr>
+<th>註解字串</th>
+<th>行數</th>
+<th>出現在文件中</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“</td>
+<td>單行</td>
+<td>V</td>
+</tr>
+<tr>
+<td>“””</td>
+<td>多行</td>
+<td>V</td>
+</tr>
+<tr>
+<td>#</td>
+<td>單行</td>
+<td></td>
+</tr>
+</tbody></table>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  <span class="string">"哀低"</span></span><br><span class="line">  id: Int</span><br><span class="line">  <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">  第一行註解</span></span><br><span class="line"><span class="string">  第二行註解</span></span><br><span class="line"><span class="string">  "</span><span class="string">""</span></span><br><span class="line">  name: <span class="built_in">String</span></span><br><span class="line">  #我不會出現在文件中#</span><br><span class="line">  age: Int</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="針對-type-field-再做更細部的設定"><a href="#針對-type-field-再做更細部的設定" class="headerlink" title="針對 type field 再做更細部的設定"></a>針對 type field 再做更細部的設定</h3><table>
+<thead>
+<tr>
+<th>表示方式</th>
+<th>說明</th>
+<th>範例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>!</td>
+<td>Not null</td>
+<td>name: String!</td>
+</tr>
+<tr>
+<td>[]</td>
+<td>陣列</td>
+<td>me: [User]</td>
+</tr>
+<tr>
+<td>[]!</td>
+<td>陣列必定有值/物件 (值/物件可為 null)</td>
+<td>me: [User]!</td>
+</tr>
+<tr>
+<td>[!]!</td>
+<td>陣列必定有值/物件 (值/物件不可為 null)</td>
+<td>me: [User!]!</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="Demo-Array-Not-null-N階查詢一起來"><a href="#Demo-Array-Not-null-N階查詢一起來" class="headerlink" title="Demo: Array, Not null, N階查詢一起來"></a>Demo: Array, Not null, N階查詢一起來</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; filter &#125; = <span class="built_in">require</span>(<span class="string">'lodash'</span>);</span><br><span class="line"><span class="keyword">let</span> data = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'Kyo'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">2</span>, <span class="attr">name</span>: <span class="string">'Kyo2'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">3</span>, <span class="attr">name</span>: <span class="string">'Kyo3'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">4</span>, <span class="attr">name</span>: <span class="string">'Kyo4'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    age: Int,</span></span><br><span class="line"><span class="string">    friends: [User]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    user(id: ID!): User</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    user: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> &#123; id &#125; = args;</span><br><span class="line">      <span class="keyword">let</span> result = filter(data, [<span class="string">'id'</span>, +id]);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> result.length &gt; <span class="number">0</span> ? result[<span class="number">0</span>]: <span class="literal">null</span>; <span class="comment">// null 改成 &#123;&#125; 時，無法通過型別檢查</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="好像還缺了什麼"><a href="#好像還缺了什麼" class="headerlink" title="好像還缺了什麼?"></a>好像還缺了什麼?</h3><hr>
+<h3 id="Demo-N-階查詢關鍵：自訂義-type-field-查詢方式"><a href="#Demo-N-階查詢關鍵：自訂義-type-field-查詢方式" class="headerlink" title="Demo: N 階查詢關鍵：自訂義 type field 查詢方式"></a>Demo: N 階查詢關鍵：自訂義 type field 查詢方式</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> relation = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">friends_id</span>: [<span class="number">2</span>, <span class="number">3</span>] &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">2</span>, <span class="attr">friends_id</span>: [<span class="number">1</span>, <span class="number">3</span>] &#125;</span><br><span class="line">]</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  User: &#123;</span><br><span class="line">    friends: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> &#123; id &#125; = parent;</span><br><span class="line">      <span class="keyword">let</span> filter_relation = filter(relation, [<span class="string">'id'</span>, +id]);</span><br><span class="line">      <span class="keyword">let</span> result = <span class="literal">null</span>;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (filter_relation.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> &#123; friends_id &#125; = filter_relation[<span class="number">0</span>];</span><br><span class="line">        result = filter(data, o =&gt; friends_id.includes(o.id));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> result; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="除了Query，當然還有資料新刪修：Mutation"><a href="#除了Query，當然還有資料新刪修：Mutation" class="headerlink" title="除了Query，當然還有資料新刪修：Mutation"></a>除了Query，當然還有資料新刪修：Mutation</h3><p><img src="https://i.imgur.com/A2RQtka.png" alt=""></p>
+<hr>
+<h3 id="Mutation-的-Schema-與-Resolver"><a href="#Mutation-的-Schema-與-Resolver" class="headerlink" title="Mutation 的 Schema 與 Resolver"></a>Mutation 的 Schema 與 Resolver</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type Query &#123; ... &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    addUser(id: Int!, name: String!, age: Int): User</span></span><br><span class="line"><span class="string">    deleteUser(id: ID!): Response</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Response &#123;</span></span><br><span class="line"><span class="string">    message: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  User: &#123; ... &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    addUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> &#123; id, name, age &#125; = args;</span><br><span class="line">      <span class="keyword">let</span> user = &#123; id, name, age &#125;;</span><br><span class="line">      data.push(user);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> user; </span><br><span class="line">    &#125;,</span><br><span class="line">    deleteUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> response = &#123; <span class="attr">message</span>: <span class="string">'OK'</span>&#125;;</span><br><span class="line">      <span class="comment">//刪除 User 邏輯</span></span><br><span class="line">      <span class="keyword">return</span> response; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="將-Mutation-的-Input-獨立成為一個-type"><a href="#將-Mutation-的-Input-獨立成為一個-type" class="headerlink" title="將 Mutation 的 Input 獨立成為一個 type"></a>將 Mutation 的 Input 獨立成為一個 type</h3><p><img src="https://i.imgur.com/MKEMPOJ.png" alt=""></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type Query &#123; ... &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    addUser(input: addUser): User</span></span><br><span class="line"><span class="string">    deleteUser(id: ID!): Response</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Response &#123;</span></span><br><span class="line"><span class="string">    message: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  input addUser &#123;</span></span><br><span class="line"><span class="string">    id: Int!</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    age: Int</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  User: &#123; ... &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    addUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> &#123; id, name, age &#125; = args.input;</span><br><span class="line">      <span class="keyword">let</span> user = &#123; id, name, age &#125;;</span><br><span class="line">      data.push(user);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> user; </span><br><span class="line">    &#125;,</span><br><span class="line">    deleteUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> response = &#123; <span class="attr">message</span>: <span class="string">'OK'</span>&#125;;</span><br><span class="line">      <span class="comment">//刪除 User 邏輯</span></span><br><span class="line">      <span class="keyword">return</span> response; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Resolver-field-parent-args-context"><a href="#Resolver-field-parent-args-context" class="headerlink" title="Resolver field (parent, args, context)"></a>Resolver field (parent, args, context)</h3><ul>
+<li>Parent<ul>
+<li>多階查詢時，上一階傳遞過來的資料</li>
+<li>不會因為前端少 Query 上一階欄位，而導致下一階無法取得資料。</li>
+<li>只能取得上一階的資料，無法取得上上階或更多階之前的資料</li>
+</ul>
+</li>
+<li>Args<ul>
+<li>Query 時所輸入的參數皆置於此</li>
+<li>若有在 Mutation 使用 input type，則必須用 args.input 才可取到值</li>
+</ul>
+</li>
+<li>Context<ul>
+<li>全域變數所在地</li>
+<li>適合將 User 身分與權限置於此，供其他 Resolver 驗證</li>
+</ul>
+</li>
+</ul>
+<p>Error Handler <a href="http://bit.ly/3bSlUiK" target="_blank" rel="noopener">http://bit.ly/3bSlUiK</a> <a href="http://bit.ly/39OdF5v" target="_blank" rel="noopener">http://bit.ly/39OdF5v</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Error Handler</span></span><br><span class="line">app.use(<span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> user = ctx.headers.authorization || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (user) &#123;</span><br><span class="line">    <span class="keyword">await</span> next();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ctx.status = <span class="number">400</span>;</span><br><span class="line">    <span class="keyword">return</span> ctx.body = &#123; <span class="attr">message</span>: <span class="string">'authorization failed'</span>&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  context: <span class="function">(<span class="params">&#123; ctx &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> user = ctx.headers.authorization || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123; user &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="最後再加個客製化-logger"><a href="#最後再加個客製化-logger" class="headerlink" title="最後再加個客製化 logger"></a>最後再加個客製化 logger</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gqlLogger &#125; = <span class="built_in">require</span>(<span class="string">'./lib/logger'</span>);</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  extensions: [<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">new</span> gqlLogger()],</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="來統整一下目前-GraphQL-用到的東西吧"><a href="#來統整一下目前-GraphQL-用到的東西吧" class="headerlink" title="來統整一下目前 GraphQL 用到的東西吧"></a>來統整一下目前 GraphQL 用到的東西吧</h3><table>
+<thead>
+<tr>
+<th>GraphQL 用語</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Schema</td>
+<td>Graph QL 定義文件</td>
+</tr>
+<tr>
+<td>Resolver</td>
+<td>GraphQL 文件的實作</td>
+</tr>
+<tr>
+<td>Query Type</td>
+<td>查詢資料需求</td>
+</tr>
+<tr>
+<td>Mutation Type</td>
+<td>新刪修資料需求</td>
+</tr>
+<tr>
+<td>Object Type</td>
+<td>對物件進行定義，提高 Schema 可讀性與共用性</td>
+</tr>
+<tr>
+<td>Scalar Type</td>
+<td>欄位型別宣告，強化型別檢查</td>
+</tr>
+<tr>
+<td>Schema 註解</td>
+<td>讓文件更加清楚</td>
+</tr>
+<tr>
+<td>Type Modifier</td>
+<td>Not null 與陣列</td>
+</tr>
+<tr>
+<td>自定義 Resolver</td>
+<td>提高 Resolver 的共用性，簡化 N 階查詢實作</td>
+</tr>
+<tr>
+<td>Input Type</td>
+<td>對 Mutation Input 另外定義 Type，提高 Schema 可讀性與共用性</td>
+</tr>
+<tr>
+<td>Resolver field</td>
+<td>Resolver 的 3 種 input: parent, args, context</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="Schema-命名大小寫習慣"><a href="#Schema-命名大小寫習慣" class="headerlink" title="Schema 命名大小寫習慣"></a>Schema 命名大小寫習慣</h3><ul>
+<li>type name：PascalCase </li>
+<li>field name：camelCase</li>
+<li>enum name: camelCase</li>
+<li>enum value: ALL_CAPS</li>
+</ul>
+<hr>
+<h3 id="開始做一些-Real-case，假設有一個討論區需求是這樣"><a href="#開始做一些-Real-case，假設有一個討論區需求是這樣" class="headerlink" title="開始做一些 Real case，假設有一個討論區需求是這樣"></a>開始做一些 Real case，假設有一個討論區需求是這樣</h3><ol>
+<li>可查詢作者清單，可針對單一作者查詢/新增/修改/刪除，需紀錄作者名字</li>
+<li>可查詢文章清單，可針對單一文章查詢/新增/修改/刪除，需紀錄文章標題與內容</li>
+<li>查作者時，可查詢他發表過的文章資訊</li>
+<li>查文章時，可查詢該文章作者資訊</li>
+</ol>
+<h4 id="這時候-Schema-你會怎麼訂"><a href="#這時候-Schema-你會怎麼訂" class="headerlink" title="這時候 Schema 你會怎麼訂?"></a>這時候 Schema 你會怎麼訂?</h4>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Apollo/" rel="tag"># Apollo</a>
+              <a href="/tags/GraphQL/" rel="tag"># GraphQL</a>
+              <a href="/tags/Koa/" rel="tag"># Koa</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/19/refactor-chapter2/" rel="next" title="Chapter2 重構的原理 - 整理筆記">
+                  <i class="fa fa-chevron-left"></i> Chapter2 重構的原理 - 整理筆記
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/02/25/apollo-graphql-2/" rel="prev" title="Re:從零開始的GraphQL生活 Real Case">
+                  Re:從零開始的GraphQL生活 Real Case <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Re-從零開始的GraphQL生活-Overview"><span class="nav-number">1.</span> <span class="nav-text">Re:從零開始的GraphQL生活 Overview</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#初探GraphQL"><span class="nav-number">1.1.</span> <span class="nav-text">初探GraphQL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-GraphQL-server-with-a-connected-database"><span class="nav-number">1.1.1.</span> <span class="nav-text">1. GraphQL server with a connected database</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-With-a-connected-database-and-Integration-of-existing-system"><span class="nav-number">1.1.2.</span> <span class="nav-text">2. With a connected database and Integration of existing system</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-GraphQL-layer-that-integrates-existing-systems"><span class="nav-number">1.1.3.</span> <span class="nav-text">3. GraphQL layer that integrates existing systems</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#說明一下實作的目標…"><span class="nav-number">1.2.</span> <span class="nav-text">說明一下實作的目標…</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-To-run-a-basic-GraphQL-server-with-existing-APIs"><span class="nav-number">1.2.1.</span> <span class="nav-text">Demo: To run a basic GraphQL server with existing APIs.</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GraphLQ-API-兩大基石：-Schema、Resolver"><span class="nav-number">1.2.2.</span> <span class="nav-text">GraphLQ API 兩大基石： Schema、Resolver</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#前端根據-Schema-菜單-下-Query-點菜-，Resolver-廚房-回傳結果-前端所要的料理"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">前端根據 Schema (菜單) 下 Query (點菜)，Resolver (廚房) 回傳結果 (前端所要的料理)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-Schema-再稍微複雜一點"><span class="nav-number">1.2.3.</span> <span class="nav-text">Demo: Schema 再稍微複雜一點</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Object-Type"><span class="nav-number">1.2.4.</span> <span class="nav-text">Object Type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Default-Scalar-Type-Field-Type"><span class="nav-number">1.2.5.</span> <span class="nav-text">Default Scalar Type (Field Type)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#利用自訂義-Enum-作為-Scalar-Type"><span class="nav-number">1.2.6.</span> <span class="nav-text">利用自訂義 Enum 作為 Scalar Type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#讓註解出現在你的文件"><span class="nav-number">1.2.7.</span> <span class="nav-text">讓註解出現在你的文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#針對-type-field-再做更細部的設定"><span class="nav-number">1.2.8.</span> <span class="nav-text">針對 type field 再做更細部的設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-Array-Not-null-N階查詢一起來"><span class="nav-number">1.2.9.</span> <span class="nav-text">Demo: Array, Not null, N階查詢一起來</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#好像還缺了什麼"><span class="nav-number">1.2.10.</span> <span class="nav-text">好像還缺了什麼?</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Demo-N-階查詢關鍵：自訂義-type-field-查詢方式"><span class="nav-number">1.2.11.</span> <span class="nav-text">Demo: N 階查詢關鍵：自訂義 type field 查詢方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#除了Query，當然還有資料新刪修：Mutation"><span class="nav-number">1.2.12.</span> <span class="nav-text">除了Query，當然還有資料新刪修：Mutation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mutation-的-Schema-與-Resolver"><span class="nav-number">1.2.13.</span> <span class="nav-text">Mutation 的 Schema 與 Resolver</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#將-Mutation-的-Input-獨立成為一個-type"><span class="nav-number">1.2.14.</span> <span class="nav-text">將 Mutation 的 Input 獨立成為一個 type</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Resolver-field-parent-args-context"><span class="nav-number">1.2.15.</span> <span class="nav-text">Resolver field (parent, args, context)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最後再加個客製化-logger"><span class="nav-number">1.2.16.</span> <span class="nav-text">最後再加個客製化 logger</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#來統整一下目前-GraphQL-用到的東西吧"><span class="nav-number">1.2.17.</span> <span class="nav-text">來統整一下目前 GraphQL 用到的東西吧</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Schema-命名大小寫習慣"><span class="nav-number">1.2.18.</span> <span class="nav-text">Schema 命名大小寫習慣</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#開始做一些-Real-case，假設有一個討論區需求是這樣"><span class="nav-number">1.2.19.</span> <span class="nav-text">開始做一些 Real case，假設有一個討論區需求是這樣</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#這時候-Schema-你會怎麼訂"><span class="nav-number">1.2.19.1.</span> <span class="nav-text">這時候 Schema 你會怎麼訂?</span></a></li></ol></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Kyoforing"
+    src="https://i.imgur.com/Th4Am8x.jpg">
+  <p class="site-author-name" itemprop="name">Kyoforing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kyoforing</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

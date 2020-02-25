@@ -171,6 +171,865 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/25/apollo-graphql-4/" class="post-title-link" itemprop="url">Re:從零開始的GraphQL生活 補充</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 11:32:00 / Modified: 11:34:18" itemprop="dateCreated datePublished" datetime="2020-02-25T11:32:00+08:00">2020-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Re-從零開始的GraphQL生活-補充"><a href="#Re-從零開始的GraphQL生活-補充" class="headerlink" title="Re:從零開始的GraphQL生活 補充"></a>Re:從零開始的GraphQL生活 補充</h1><p>Re:ゼロから始める GraphQL 生活 補充</p>
+<hr>
+<h4 id="若-model-查無資料，請-return-null。如果-return-，仍會被檢查-type-而導致query-錯誤。"><a href="#若-model-查無資料，請-return-null。如果-return-，仍會被檢查-type-而導致query-錯誤。" class="headerlink" title="若 model 查無資料，請 return null。如果 return {}，仍會被檢查 type 而導致query 錯誤。"></a>若 model 查無資料，請 return null。如果 return {}，仍會被檢查 type 而導致query 錯誤。</h4><hr>
+<h3 id="可善用-Directives-語法糖，去修飾-field-或增加小功能"><a href="#可善用-Directives-語法糖，去修飾-field-或增加小功能" class="headerlink" title="可善用 Directives 語法糖，去修飾 field 或增加小功能"></a>可善用 Directives 語法糖，去修飾 field 或增加小功能</h3><ul>
+<li><p>@include, @skip：client 端使用，主要將是否顯示該欄位可用變數控制<br><img src="https://i.imgur.com/O6jetNF.png" alt=""></p>
+<ul>
+<li>@include: true 時顯示該物件或欄位，反之不顯示</li>
+<li>@skip: true 時不顯示該物件或欄位，反之則顯示</li>
+</ul>
+</li>
+<li><p>@deprecated：server 端使用，標註欄位即將棄用及棄用原因</p>
+</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">type Post implements Node &#123;</span><br><span class="line">  ...</span><br><span class="line">  status: <span class="built_in">String</span> @deprecated (reason: <span class="string">"No longer supported"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://i.imgur.com/1qE1UPO.png" alt=""></p>
+<ul>
+<li>自行定義 Directives，例如參數檢查、字串處理、權限檢查、錯誤處理等等。</li>
+<li>自行定義 Directive @auth，來管控使用者對物件或方法的存取權限</li>
+<li>也可以引用別人寫的 Directives 套件</li>
+</ul>
+<hr>
+<h3 id="自定義-Directives-以欄位轉大寫為例"><a href="#自定義-Directives-以欄位轉大寫為例" class="headerlink" title="自定義 Directives: 以欄位轉大寫為例"></a>自定義 Directives: 以欄位轉大寫為例</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//UpperCaseDirective</span></span><br><span class="line"><span class="keyword">const</span> &#123; SchemaDirectiveVisitor &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-koa'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; defaultFieldResolver &#125; = <span class="built_in">require</span>(<span class="string">'graphql'</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UpperCaseDirective</span> <span class="keyword">extends</span> <span class="title">SchemaDirectiveVisitor</span> </span>&#123;</span><br><span class="line">  visitFieldDefinition(field) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; resolve = defaultFieldResolver &#125; = field;</span><br><span class="line">    field.resolve = <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">      <span class="keyword">const</span> result = <span class="keyword">await</span> resolve.apply(<span class="keyword">this</span>, args);</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> result === <span class="string">'string'</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> result.toUpperCase();</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> result;</span><br><span class="line">    &#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; UpperCaseDirective &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//app.ts</span></span><br><span class="line"><span class="keyword">const</span> &#123; UpperCaseDirective &#125; = <span class="built_in">require</span>(<span class="string">'./lib/helper'</span>);</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  schemaDirectives: &#123;</span><br><span class="line">    upper: UpperCaseDirective,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//typeDef</span></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  directive @upper on FIELD_DEFINITION</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Author implements Node &#123;</span></span><br><span class="line"><span class="string">    ...</span></span><br><span class="line"><span class="string">    name: String @upper</span></span><br><span class="line"><span class="string">    ...</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+
+
+<hr>
+<h3 id="自定義-Directives-權限控管-Query-Mutation-Object-type-field-皆可控管"><a href="#自定義-Directives-權限控管-Query-Mutation-Object-type-field-皆可控管" class="headerlink" title="自定義 Directives: 權限控管 (Query, Mutation, Object type, field 皆可控管)"></a>自定義 Directives: 權限控管 (Query, Mutation, Object type, field 皆可控管)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//UpperCaseDirective</span></span><br><span class="line"><span class="keyword">const</span> &#123; SchemaDirectiveVisitor &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-koa'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; defaultFieldResolver &#125; = <span class="built_in">require</span>(<span class="string">'graphql'</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AuthDirective</span> <span class="keyword">extends</span> <span class="title">SchemaDirectiveVisitor</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (!user.roles.includes(requiredRole)) &#123;</span><br><span class="line">     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">"not authorized"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; AuthDirective &#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//app.ts</span></span><br><span class="line"><span class="keyword">const</span> &#123; AuthDirective &#125; = <span class="built_in">require</span>(<span class="string">'./lib/helper'</span>);</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  schemaDirectives: &#123;</span><br><span class="line">    auth: AuthDirective,</span><br><span class="line">  &#125;,</span><br><span class="line">  context: <span class="function">(<span class="params">&#123; ctx &#125;</span>) =&gt;</span> &#123; </span><br><span class="line">    <span class="keyword">const</span> user = &#123;</span><br><span class="line">      id: <span class="number">12345</span>,</span><br><span class="line">      roles: [<span class="string">'USER'</span>, <span class="string">'ADMIN'</span>]</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    <span class="keyword">return</span> &#123; user &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//typeDef</span></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  directive @auth(requires: Role) on OBJECT | FIELD_DEFINITION</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    author(author_id: ID!): Author @auth(requires: USER)</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  enum Role &#123;</span></span><br><span class="line"><span class="string">    ADMIN</span></span><br><span class="line"><span class="string">    REVIEWER</span></span><br><span class="line"><span class="string">    USER</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h4 id="client-端-query-語法糖-https-github-com-APIs-guru-graphql-lodash"><a href="#client-端-query-語法糖-https-github-com-APIs-guru-graphql-lodash" class="headerlink" title="client 端 query 語法糖 https://github.com/APIs-guru/graphql-lodash"></a>client 端 query 語法糖 <a href="https://github.com/APIs-guru/graphql-lodash" target="_blank" rel="noopener">https://github.com/APIs-guru/graphql-lodash</a></h4><hr>
+<h3 id="進階-query"><a href="#進階-query" class="headerlink" title="進階 query"></a>進階 query</h3><ul>
+<li>一次多重 query 時，可各別取別名</li>
+<li>使用 variable 與 fragment 簡化 query</li>
+</ul>
+<p><img src="https://i.imgur.com/ILZaD37.png" alt=""></p>
+<hr>
+<h3 id="使用-extend-type-整理-field-位置"><a href="#使用-extend-type-整理-field-位置" class="headerlink" title="使用 extend type 整理 field 位置"></a>使用 extend type 整理 field 位置</h3><hr>
+<h3 id="security-相關"><a href="#security-相關" class="headerlink" title="security 相關"></a>security 相關</h3><ul>
+<li>設定 introspection, playground 防止外人查看 schema。production 時會自動關閉</li>
+<li>防止無止盡深度的查詢 <a href="https://github.com/stems/graphql-depth-limit" target="_blank" rel="noopener">https://github.com/stems/graphql-depth-limit</a></li>
+<li>防止過量查詢 <a href="https://github.com/pa-bru/graphql-cost-analysis" target="_blank" rel="noopener">https://github.com/pa-bru/graphql-cost-analysis</a></li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> depthLimit = <span class="built_in">require</span>(<span class="string">'graphql-depth-limit'</span>);</span><br><span class="line"><span class="keyword">const</span> costAnalysis = <span class="built_in">require</span>(<span class="string">'graphql-cost-analysis'</span>).default;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  validationRules: [ </span><br><span class="line">    depthLimit(<span class="number">5</span>),</span><br><span class="line">    costAnalysis(&#123;</span><br><span class="line">      defaultCost: <span class="number">1</span>,</span><br><span class="line">      maximumCost: <span class="number">200</span>,</span><br><span class="line">    &#125;),</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// 若 NODE_ENV=production 則自動為 fasle，防止外人查看 schema</span></span><br><span class="line">  introspection: <span class="literal">false</span>,</span><br><span class="line">  playground: <span class="literal">false</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="使用-variable-替代明碼-query，以避免-GraphQL-injection"><a href="#使用-variable-替代明碼-query，以避免-GraphQL-injection" class="headerlink" title="使用 variable 替代明碼 query，以避免 GraphQL injection"></a>使用 variable 替代明碼 query，以避免 GraphQL injection</h3><p><img src="https://i.imgur.com/uROsxep.png" alt=""></p>
+<hr>
+<h3 id="圖形化-GraphQL-Schema-檢閱工具"><a href="#圖形化-GraphQL-Schema-檢閱工具" class="headerlink" title="圖形化 GraphQL Schema 檢閱工具"></a>圖形化 GraphQL Schema 檢閱工具</h3><p><a href="https://github.com/APIs-guru/graphql-voyager" target="_blank" rel="noopener">https://github.com/APIs-guru/graphql-voyager</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; <span class="attr">koa</span>: voyagerMiddleware &#125; = <span class="built_in">require</span>(<span class="string">'graphql-voyager/middleware'</span>);</span><br><span class="line">...</span><br><span class="line">route.all(<span class="string">'/voyager'</span>, voyagerMiddleware(&#123;</span><br><span class="line">  endpointUrl: <span class="string">'/graphql'</span></span><br><span class="line">&#125;));</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="前端串接小-Demo"><a href="#前端串接小-Demo" class="headerlink" title="前端串接小 Demo"></a>前端串接小 Demo</h3><p><a href="https://codesandbox.io/s/mystifying-ellis-863oe" target="_blank" rel="noopener">https://codesandbox.io/s/mystifying-ellis-863oe</a></p>
+<hr>
+<h3 id="Apollo-Graph-Manager"><a href="#Apollo-Graph-Manager" class="headerlink" title="Apollo Graph Manager"></a>Apollo Graph Manager</h3><p><img src="https://i.imgur.com/kA0gwpm.png" alt=""></p>
+<p>.env</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ENGINE_API_KEY=service:$&#123;serviceName&#125;:$&#123;apiKey&#125;</span><br></pre></td></tr></table></figure>
+
+<p>.apollo.config.js</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  service: &#123;</span><br><span class="line">    name: $&#123;serviceName&#125;,</span><br><span class="line">    endpoint: &#123;</span><br><span class="line">      url: $&#123;graphQL Doc Url&#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,  </span><br><span class="line">  engine: &#123;</span><br><span class="line">    apiKey: process.env.ENGINE_API_KEY</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://i.imgur.com/3isfyQj.png" alt=""></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/25/apollo-graphql-3/" class="post-title-link" itemprop="url">Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 11:31:00 / Modified: 11:43:18" itemprop="dateCreated datePublished" datetime="2020-02-25T11:31:00+08:00">2020-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Re-從零開始的GraphQL生活-Implelemt-Shopify-Design-Rule"><a href="#Re-從零開始的GraphQL生活-Implelemt-Shopify-Design-Rule" class="headerlink" title="Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule"></a>Re:從零開始的GraphQL生活 Implelemt Shopify Design Rule</h1><p>Re:ゼロから始める GraphQL 生活 Implelemt Shopify Design Rule</p>
+<hr>
+<h3 id="Tutorial-Designing-a-GraphQL-API"><a href="#Tutorial-Designing-a-GraphQL-API" class="headerlink" title="Tutorial: Designing a GraphQL API"></a>Tutorial: Designing a GraphQL API</h3><p><img src="https://i.imgur.com/eZZ6mNb.png" alt=""></p>
+<hr>
+<h4 id="Step1-A-Bird’s-Eye-View"><a href="#Step1-A-Bird’s-Eye-View" class="headerlink" title="Step1. A Bird’s-Eye View"></a>Step1. A Bird’s-Eye View</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #1: </span><br><span class="line">Always start with a high-level view of the objects and their relationships </span><br><span class="line">before you deal with specific fields.</span><br></pre></td></tr></table></figure>
+<p>設計 Schema 時，永遠先以高層次物件的結構與關係為方向去思考，以 ER model 概念大略設計schema後，再去處理細節的欄位。在 Query 裡建議使用「名詞」而非「動名詞」，更能夠表達 Graph 的概念。</p>
+<hr>
+<h4 id="Step2-A-Clean-Slate"><a href="#Step2-A-Clean-Slate" class="headerlink" title="Step2. A Clean Slate"></a>Step2. A Clean Slate</h4><p>考量API實作細節：假設 Author 與 Post 是多對多的關係。<br>以 ER model 的概念來說，必須儲存 Author 與 Post 多對多的關聯資料，但這並不是 API 實現的部分，故剔除多對多的 schema。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #2: </span><br><span class="line">Never expose implementation details in your API design.</span><br></pre></td></tr></table></figure>
+<p>API設計上不暴露實作細節：以案例來說，如果 Post 分為教師公告與學生發問 2種，合併為同一個 Post schema 隱藏實作細節，是較好的設計，但因情況不同可自行斟酌。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #3: </span><br><span class="line">Design your API around the business domain, </span><br><span class="line">not the implementation, user-interface, or legacy APIs.</span><br></pre></td></tr></table></figure>
+<p>依照商務領域去設計 schema，而不應完全實作 GUI 所需的欄位或是複製傳統的 Restful API。例如教師公告與學生發問是 2 種不同 GUI，但仍可歸類為同一種 schema。</p>
+<hr>
+<h4 id="Step3-Adding-Detail"><a href="#Step3-Adding-Detail" class="headerlink" title="Step3. Adding Detail"></a>Step3. Adding Detail</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #4: </span><br><span class="line">It&apos;s easier to add fields than to remove them.</span><br></pre></td></tr></table></figure>
+<p>在完成上述作業後，我們可以重新加上所需的欄位。要注意 GraphQL 是公開文件，應由實際需求和案例決定，不要隨意透露資料庫欄位細節。<br>新增欄位簡單，但是更改或刪除它們難度不低。尤其是標記 ! 的必填欄位，優點是可以強化 Schema 的驗證邏輯，但缺點也不少，比如</p>
+<ol>
+<li>難以擴展 Schema<br>修改一個 non-null 欄位意味著 breaking change 。預測未來的 Schema 變化是不實際的，把 nullable 欄位轉向 non-null 很容易，但要轉回來的成本會高出很多。<br>打個比方，有可能今天有個 User type ，規定一定要有名字與生日，那假如有一天註冊方式改用 Oauth 或其他方式使得 name 非必要，或是要修改能看到 age 的權限等等，都會限制你的 Schema 。<br>而且因為前端會預期得到 non-null ，所以如果 deprecate 掉這個欄位，還是要提供 default 值。</li>
+<li>Non-null 欄位可能會放大錯誤</li>
+</ol>
+<p>比較適合用 ! 標記必填欄位的地方</p>
+<ol>
+<li>id 欄位</li>
+<li>parent Object</li>
+<li>Boolean type: boolean 欄位有 null 值是不應該存在的</li>
+<li>[type!] 欄位: 一個有值為 null 的 array 是不應該存在的</li>
+</ol>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #5: </span><br><span class="line">Major business-object types should always implement Node.</span><br></pre></td></tr></table></figure>
+<p>在大型的 GraphQL Schema 中，一般會推薦所有主要商業邏輯物件都要實作 Node interface type，因為通常這些物件在 database 中都有 id ，實作 Node interface type 可以明確告訴 Client 這是一個重要概念的物件，並且可透過 id 的操作來做 caching 及 batching。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  ... </span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  interface Node &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Author implements Node &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type Post implements Node &#123; ... &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #6: </span><br><span class="line">Group closely-related fields together into subobjects.</span><br></pre></td></tr></table></figure>
+<p>密切相關的欄位可以單獨抽離出為子 type。<br>例如 Post的 title 和 author_name 這 2 個欄位關係密切，但可能必須考慮另外一個狀況：如果 Post 為自動產生，則 Author 可能為空值。所以將這 2 個欄位獨立為 1 個 type，且 Post 的 Author 不設為 Not null 是較好的設計。</p>
+<p><img src="https://i.imgur.com/thhMCn7.png" alt=""></p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #7: </span><br><span class="line">Always check whether list fields should be paginated or not.</span><br></pre></td></tr></table></figure>
+<p>隨時確認資料是否做分頁。</p>
+<ul>
+<li><p>offset-based</p>
+<ul>
+<li>優點：可直接跳到指定分頁</li>
+<li>缺點：資料量越大，offset消耗效能越大。資料異動時，分頁起始資料可能錯誤。</li>
+<li>適合資料不常異動、效能要求不高及需要顯示分頁的功能（如部分後台管理功能）<br><img src="https://i.imgur.com/ITQa6OQ.png" alt=""></li>
+</ul>
+</li>
+<li><p>cursor-based</p>
+<ul>
+<li>優點：資料量大時，仍有不錯效能。資料異動時，不會發生錯誤。</li>
+<li>缺點：無法跳至指定分頁。需另外為 cursor 欄位建立 index。</li>
+<li>適合資料大量異動、效能要求較高及資料為漸進式呈現。(如下捲式分頁)<br><img src="https://i.imgur.com/ZGI1Alt.png" alt=""></li>
+</ul>
+</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #8: </span><br><span class="line">Always use object references instead of ID fields.</span><br></pre></td></tr></table></figure>
+<p>應該將物件關聯用的ID欄位(類似外來鍵FK欄位) 獨立出 type，取代原有的 ID 欄位。<br>在 Restful API 的設計上，我們很常發生一個物件有多個關聯用 ID 欄位，藉這些 ID 欄位來取得其他物件的相關資料。但在 GraphQL，這是一個 anti-pattern，這是為了確保每一個 type 物件只會有一個 id 作為辨識。<br>若獨立的出來的 type 該 id 欄位早已在其他 type 存在，那事實上可以考慮用既有 type 來取代即可，利用 FK 資料串接可於 model 和 resolver 實作</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #9: </span><br><span class="line">Choose field names based on what makes sense, </span><br><span class="line">not based on the implementation or </span><br><span class="line">what the field is called in legacy APIs.</span><br></pre></td></tr></table></figure>
+<p>取一個比較平易近人而非過於技術的名稱<br>例如: bodyHtml 改名為 description</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #10: </span><br><span class="line">Use custom scalar types when you&apos;re exposing something </span><br><span class="line">with specific semantic value.</span><br></pre></td></tr></table></figure>
+<p>GraphQL 預設總共有 5 種 Scalar Type。因 GraphQL 的一大強處就是 type validation ，但當功能需求越開越多時，開始會存取 url, date, positive integer 等等特定格式的資料，只使用 String 或 Int 做 type validation 的效益不高，過於寬鬆。這時候可以自定義的 Scalar Type 來幫助你達到以下三點：</p>
+<ol>
+<li>讓 Clinet 與 Server 的開發者對於資料格式有共同的認知</li>
+<li>強迫 Client 的送出正確格式的 query</li>
+<li>強迫 Server 的回覆正確格式的 response</li>
+</ol>
+<p>Scalar Type 擴充包<br><a href="https://github.com/Urigo/graphql-scalars" target="_blank" rel="noopener">https://github.com/Urigo/graphql-scalars</a></p>
+<p>那麼什麼時候我們需要 Custom Scalar Type?</p>
+<ol>
+<li>當你需要一個有特殊語意的值時，就使用 Custom Scalar Type</li>
+<li>但如果你的值是比較模糊的格式如 email，這類在 client 端檢查較為複雜的格式的話，建議使用寬一點的 type 如 String</li>
+<li>而如果你的值是定義比較明確如 DateTime 就是要 ISO 格式不接受其他，那就可以考慮使用 Custom Scalar Type 來規範 Client 不能亂傳</li>
+</ol>
+<p>開發初期可先使用 String，只有當對於特殊語意的 Scalar Type 的需求夠多時，比如每個 Business Model 都要有個 createdAt ，那可以考慮使用為 createdAt 建立一個 Date Scalar Type 。</p>
+<p>否則有時候 Custom Scalar Type 也是把雙面刃，用錯時機點可能造成 Schema 規範過多不夠彈性。</p>
+<p>最後務求團隊對於所有 Scalar Type 使用上是有共識的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//typeDef</span></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  scalar PositiveInt</span></span><br><span class="line"><span class="string">  ...   </span></span><br><span class="line"><span class="string">  type Pagination &#123;</span></span><br><span class="line"><span class="string">    page: Int</span></span><br><span class="line"><span class="string">    pages: Int</span></span><br><span class="line"><span class="string">    count: Int</span></span><br><span class="line"><span class="string">    limit: PositiveInt</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//resolvers</span></span><br><span class="line"><span class="keyword">const</span> &#123; PositiveIntResolver &#125; = <span class="built_in">require</span>(<span class="string">'graphql-scalars'</span>);</span><br><span class="line"><span class="keyword">const</span> allResolver = &#123;</span><br><span class="line">    PositiveInt: PositiveIntResolver,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">const</span> resolvers = [allResolver, authorResolver, postResolver];</span><br></pre></td></tr></table></figure>
+
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #11: </span><br><span class="line">Use enums for fields which can only take a specific set of values</span><br></pre></td></tr></table></figure>
+<p>在 schema 使用 enum 來定義值集合。</p>
+<hr>
+<h4 id="Step4-Business-Logic"><a href="#Step4-Business-Logic" class="headerlink" title="Step4. Business Logic"></a>Step4. Business Logic</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #12: </span><br><span class="line">The API should provide business logic, not just data. </span><br><span class="line">Complex calculations should be done on the server, </span><br><span class="line">in one place, not on the client, in many places.</span><br></pre></td></tr></table></figure>
+<p>API 應該不只提供資料，也要能呈現商業邏輯。複雜的計算應該交由後端來處理，而非散落各處。<br>例如有一個 Author 底下有 posts 清單欄位，但前端這時可能只需要書本數量，這時可以提供一個 postCount 欄位，讓前端不用取得 posts 清單來計算數量。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #13: </span><br><span class="line">Provide the raw data too, </span><br><span class="line">even when there&apos;s business logic around it.</span><br></pre></td></tr></table></figure>
+<p>即時呈現了商業邏輯，也還是要提供 raw data。前端仍有可能想要自己處理資料邏輯。</p>
+<hr>
+<h4 id="Step5-Mutation"><a href="#Step5-Mutation" class="headerlink" title="Step5. Mutation"></a>Step5. Mutation</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Rule #14: </span><br><span class="line">Write separate mutations for separate logical actions on a resource</span><br></pre></td></tr></table></figure>
+<p>一個邏輯行為寫一個 mutation。<br>例如：一個商品如果所有狀態更新寫在 update，會讓狀況顯得混亂，故先拆成基本的 5 個 mutation</p>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>delete</li>
+<li>publish</li>
+<li>unpublish</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #15: </span><br><span class="line">Mutating relationships is really complicated and </span><br><span class="line">not easily summarized into a snappy rule.</span><br></pre></td></tr></table></figure>
+<p>我們仍然覺得部分 mutation 負擔太多責任，並試圖去解構它。大略上有以下 3 種常見方式</p>
+<ol>
+<li>一次更新所有資料。例如：updateOrderProducts (products: [Product!]!)</li>
+<li>一次更新部分資料。例如：deleteOrderProducts(ids: [ID!]!)</li>
+<li>一次更新一筆資料。例如：addProduct(input: Product!)</li>
+</ol>
+<p>經驗上來說，可以考量以下幾點作為選擇依據：</p>
+<ol>
+<li>當資料量大、適合第二三種，但如果資料量不大且結構簡單，那第一種最簡單。</li>
+<li>一次做大量簡單操作時，第一三種皆可，第二種比較難用 ids 來表達操作內容。</li>
+<li>如果一次更新父物件與子物件時：</li>
+</ol>
+<ul>
+<li>只是修改關係 (如 user 與 collection)，這三種方式皆可</li>
+<li>有強烈關聯或修改資料時 (如 user 與 order)，這建議第三種方式</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #16: </span><br><span class="line">When writing separate mutations for relationships, </span><br><span class="line">consider whether it would be useful </span><br><span class="line">for the mutations to operate on multiple elements at once.</span><br></pre></td></tr></table></figure>
+<p>如果是處理物件關係資料的 mutation，可以考慮批次處理<br>最後 mutation 會拆成如下</p>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>delete</li>
+<li>publish</li>
+<li>unpublish</li>
+<li>addProducts</li>
+<li>removeProducts</li>
+<li>reorderProducts</li>
+</ul>
+<hr>
+<h4 id="Input-Structure-Part-1"><a href="#Input-Structure-Part-1" class="headerlink" title="Input: Structure, Part 1"></a>Input: Structure, Part 1</h4><p>在看完 Mutation，我們來看 input 的部分。在看過許多真實環境資料，常見到有人會為多個 mutation 定義一個共同的 input 去處理所有的屬性，這並不是推薦的設計方式，我們應盡可能讓 input 簡單。</p>
+<ol>
+<li>針對許多簡單的 mutation，我們只需要用 ID/IDs 來處理，例如：</li>
+</ol>
+<ul>
+<li>delete, publish and unpublish 使用 collection ID</li>
+<li>addProducts, removeProducts 使用 collection IDs 和 product IDs</li>
+</ul>
+<ol start="2">
+<li>針對較為複雜的 mutation，則需要 input 來支援，例如：</li>
+</ol>
+<ul>
+<li>create</li>
+<li>update</li>
+<li>reorderProducts</li>
+</ul>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #17: </span><br><span class="line">Prefix mutation names with the object </span><br><span class="line">they are mutating for alphabetical grouping </span><br><span class="line">(e.g. use orderCancel instead of cancelOrder).</span><br></pre></td></tr></table></figure>
+<p>Shopify 內部制定的規則為 TypeName<action>，例如 orderCreate, orderUpdate, orderRemove，在 GraphQL API排序上較為整齊。不過這基本上見仁見智，只要團隊規範好命名方式，然後持續遵守就可以了。</p>
+<hr>
+<h4 id="Input-Scalars"><a href="#Input-Scalars" class="headerlink" title="Input: Scalars"></a>Input: Scalars</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #18: </span><br><span class="line">Only make input fields required </span><br><span class="line">if they&apos;re actually semantically required for the mutation to proceed.</span><br></pre></td></tr></table></figure>
+<p>針對 input field，除了語意上必定要做處理的欄位，否則不隨意加上必填屬性，因為你無法預期客戶的需求</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule #19: </span><br><span class="line">Use weaker types for inputs (e.g. String instead of Email) </span><br><span class="line">when the format is unambiguous and client-side validation is complex. </span><br><span class="line">This lets the server run all non-trivial validations at once and </span><br><span class="line">return the errors in a single place in a single format, </span><br><span class="line">simplifying the client.</span><br></pre></td></tr></table></figure>
+<p>輸入的格式若是非常明確但前端驗證相對複雜，就建議用 Weaker Type ，讓後端去跑驗證程序。比如要輸入 Html 字串，就建議直接用 String ，接下來交給後端去檢查，一方面後端可以做更仔細的檢查，另一方面也避免前後端各自維護檢查邏輯的程式。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Rule #20: </span><br><span class="line">Use stronger types for inputs (e.g. DateTime instead of String) </span><br><span class="line">when the format may be ambiguous and client-side validation is simple. </span><br><span class="line">This provides clarity and encourages clients to use stricter </span><br><span class="line">input controls </span><br><span class="line">(e.g. a date-picker widget instead of a free-text field).</span><br></pre></td></tr></table></figure>
+<p>如果輸入的格式模糊 (可能值很多)且前端驗證相對簡單，但就很適合使用 Strong Type (也就是使用 custom scalar type) 。比如 Date 格式，前端可能輸入千百種格式 (Unix timestamp、ISO、日期字串…) ，這時候限制前端輸入的 Date 格式，而前端也只需要做個日期選擇器，就避免了很多不必要的驗證與檢查。<br>另外一般欄位也非常推薦使用 enum 這種 strong type scalar。</p>
+<hr>
+<h4 id="Input-Structure-Part-2"><a href="#Input-Structure-Part-2" class="headerlink" title="Input: Structure, Part 2"></a>Input: Structure, Part 2</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #21: </span><br><span class="line">Structure mutation inputs to reduce duplication, </span><br><span class="line">even if this requires relaxing requiredness constraints </span><br><span class="line">on certain fields.</span><br></pre></td></tr></table></figure>
+<p>應盡量讓 mutation input 的結構減少重複，即使裡面有些欄位是必填<br>例如說，原本 mutation 如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutation &#123;</span><br><span class="line">  postCreate(title: <span class="built_in">String</span>!, text: <span class="built_in">String</span>)</span><br><span class="line">  postUpdate(post_id: ID!, title: <span class="built_in">String</span>, text: <span class="built_in">String</span> )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>很明顯可以看到 postCreate 與 postUpdate 有 2 個不同</p>
+<ol>
+<li>postUpdate 多1個 post_id 欄位</li>
+<li>postCreate title 是必填，postUpdate title 則非必填</li>
+</ol>
+<p>為了能讓 Mutation 可讀性更高、更簡潔，我們將 PostInput 提出來如下</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutation &#123;</span><br><span class="line">  postCreate(input: PostInput!)</span><br><span class="line">  postUpdate(post_id: ID!, input: PostInput!)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">input PostInput &#123;</span><br><span class="line">  title: <span class="built_in">String</span></span><br><span class="line">  text: <span class="built_in">String</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但犧牲的就是原本 title 的必填屬性，這部分設計上可自行斟酌。</p>
+<hr>
+<h4 id="Output"><a href="#Output" class="headerlink" title="Output"></a>Output</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Rule #22: </span><br><span class="line">Mutations should provide user/business-level errors </span><br><span class="line">via a userErrors field on the mutation payload. </span><br><span class="line">The top-level query errors entry is </span><br><span class="line">reserved for client and server-level errors.</span><br></pre></td></tr></table></figure>
+<p>在設計 mutation output type 時，最簡單的就是直接回傳被更改的 type ，如 authorUpdate 就應該回傳 Author type 更新後的資料，但軟體的設計常常跟不上需求，有可能今天需要增加錯誤處理邏輯或是提供更多 mutation 的詳細資訊如成功/失敗次數時，只用一個現成的 object type 就有了擴展的困難。</p>
+<p>因此，可以考慮為每一個 mutation 回傳資料都設計一個專屬的 object type，authorUpdate 的 Output 為 AuthorUpdatePayload</p>
+<p>這邊 shopify 建議可以定義一個 userErrors 來表達user/business-level 錯誤，而那種 data 層級的 error 交給 GraphQL 的 Type Validation。這邊 [UserError!]! 保證就算沒有錯誤也會回傳空 array。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AuthorUpdatePayload &#123;</span><br><span class="line">  userErrors: [UserError!]!</span><br><span class="line">  author: Author</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserError &#123;</span><br><span class="line">  message: <span class="built_in">String</span>!</span><br><span class="line"></span><br><span class="line">  # Path to input field which caused the error.</span><br><span class="line">  field: [<span class="built_in">String</span>!]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #23: </span><br><span class="line">Most payload fields for a mutation should be nullable,</span><br><span class="line">unless there is really a value to return in every possible error case.</span><br></pre></td></tr></table></figure>
+<p>payload 裡面大部分的欄位建議不要加上 non-null 以免限制 schema 的發展</p>
+<hr>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/25/apollo-graphql-2/" class="post-title-link" itemprop="url">Re:從零開始的GraphQL生活 Real Case</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 11:30:00 / Modified: 11:43:17" itemprop="dateCreated datePublished" datetime="2020-02-25T11:30:00+08:00">2020-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Re-從零開始的GraphQL生活-Real-Case"><a href="#Re-從零開始的GraphQL生活-Real-Case" class="headerlink" title="Re:從零開始的GraphQL生活 Real Case"></a>Re:從零開始的GraphQL生活 Real Case</h1><p>Re:ゼロから始める GraphQL 生活 Real Case</p>
+<hr>
+<h3 id="開始做一些-Real-case-吧，假設有一個討論區需求是這樣"><a href="#開始做一些-Real-case-吧，假設有一個討論區需求是這樣" class="headerlink" title="開始做一些 Real case 吧，假設有一個討論區需求是這樣"></a>開始做一些 Real case 吧，假設有一個討論區需求是這樣</h3><ol>
+<li>可查詢作者清單，可針對單一作者查詢/新增/修改/刪除，需紀錄作者名字</li>
+<li>可查詢文章清單，可針對單一文章查詢/新增/修改/刪除，需紀錄文章標題與內容</li>
+<li>查作者時，可查詢他發表過的文章資訊</li>
+<li>查文章時，可查詢該文章作者資訊</li>
+</ol>
+<h4 id="這時候-Schema-你會怎麼訂"><a href="#這時候-Schema-你會怎麼訂" class="headerlink" title="這時候 Schema  你會怎麼訂?"></a>這時候 Schema  你會怎麼訂?</h4><hr>
+<h3 id="參考答案"><a href="#參考答案" class="headerlink" title="參考答案 (?)"></a>參考答案 (?)</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    getAuthor(author_id: ID!): Author</span></span><br><span class="line"><span class="string">    getAuthors(): [Author!]</span></span><br><span class="line"><span class="string">    getPost(post_id: ID!): Post</span></span><br><span class="line"><span class="string">    getPosts(): [Post!]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Mutation &#123;    </span></span><br><span class="line"><span class="string">    createAuthor(name: String!): Response</span></span><br><span class="line"><span class="string">    updateAuthor(author_id: ID!, name: String!): Response</span></span><br><span class="line"><span class="string">    deleteAuthor(author_id: ID!): Response</span></span><br><span class="line"><span class="string">    createPost(author_id: ID!, title: String!, text: String!): Response</span></span><br><span class="line"><span class="string">    updatePost(post_id: ID!, title: String!, text: String!): Response</span></span><br><span class="line"><span class="string">    deletePost(post_id: ID!): Response</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Author &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    posts: [Post!]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Post &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    title: String</span></span><br><span class="line"><span class="string">    text: String</span></span><br><span class="line"><span class="string">    author: Author</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Response &#123;</span></span><br><span class="line"><span class="string">    message: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Schema-還能怎麼改善"><a href="#Schema-還能怎麼改善" class="headerlink" title="Schema 還能怎麼改善?"></a>Schema 還能怎麼改善?</h3><h4 id="這邊帶進一些-Shopify-內部的-Schema-design-guildlines-Rule-1-17-21-22-23"><a href="#這邊帶進一些-Shopify-內部的-Schema-design-guildlines-Rule-1-17-21-22-23" class="headerlink" title="這邊帶進一些 Shopify 內部的 Schema design guildlines (Rule 1, 17, 21, 22, 23)"></a>這邊帶進一些 Shopify 內部的 Schema design guildlines (Rule 1, 17, 21, 22, 23)</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #1: </span><br><span class="line">Always start with a high-level view of the objects and their relationships </span><br><span class="line">before you deal with specific fields.</span><br></pre></td></tr></table></figure>
+<p>設計 Schema 時，永遠先以高層次物件的結構與關係為方向去思考，以 ER model 概念大略設計schema後，再去處理細節的欄位。在 Query 裡建議使用「名詞」而非「動名詞」，更能夠表達 Graph 的概念。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #17: </span><br><span class="line">Prefix mutation names with the object </span><br><span class="line">they are mutating for alphabetical grouping </span><br><span class="line">(e.g. use orderCancel instead of cancelOrder).</span><br></pre></td></tr></table></figure>
+<p>Shopify 內部制定的規則為 TypeName<action>，例如 orderCreate, orderUpdate, orderRemove，在 GraphQL API排序上較為整齊。不過這基本上見仁見智，只要團隊規範好命名方式，然後持續遵守就可以了。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Rule #21: </span><br><span class="line">Structure mutation inputs to reduce duplication, </span><br><span class="line">even if this requires relaxing requiredness constraints </span><br><span class="line">on certain fields.</span><br></pre></td></tr></table></figure>
+<p>應盡量讓 mutation input 的結構減少重複，即使裡面有些欄位是必填<br>例如說，原本 mutation 如下：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutation &#123;</span><br><span class="line">  postCreate(title: <span class="built_in">String</span>!, text: <span class="built_in">String</span>)</span><br><span class="line">  postUpdate(post_id: ID!, title: <span class="built_in">String</span>, text: <span class="built_in">String</span> )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很明顯可以看到 postCreate 與 postUpdate 有 2 個不同</p>
+<ol>
+<li>postUpdate 多1個 post_id 欄位</li>
+<li>postCreate title 是必填，postUpdate title 則非必填</li>
+</ol>
+<p>為了能讓 Mutation 可讀性更高、更簡潔，我們將 PostInput 提出來如下</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Mutation &#123;</span><br><span class="line">  postCreate(input: PostInput!)</span><br><span class="line">  postUpdate(post_id: ID!, input: PostInput!)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">input PostInput &#123;</span><br><span class="line">  title: <span class="built_in">String</span></span><br><span class="line">  text: <span class="built_in">String</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但犧牲的就是原本 title 的必填屬性，這部分設計上可自行斟酌。</p>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Rule #22: </span><br><span class="line">Mutations should provide user/business-level errors </span><br><span class="line">via a userErrors field on the mutation payload. </span><br><span class="line">The top-level query errors entry is </span><br><span class="line">reserved for client and server-level errors.</span><br></pre></td></tr></table></figure>
+<p>在設計 mutation output type 時，最簡單的就是直接回傳被更改的 type ，如 authorUpdate 就應該回傳 Author type 更新後的資料，但軟體的設計常常跟不上需求，有可能今天需要增加錯誤處理邏輯或是提供更多 mutation 的詳細資訊如成功/失敗次數時，只用一個現成的 object type 就有了擴展的困難。</p>
+<p>因此，可以考慮為每一個 mutation 回傳資料都設計一個專屬的 object type，authorUpdate 的 Output 為 AuthorUpdatePayload</p>
+<p>這邊 shopify 建議可以定義一個 userErrors 來表達user/business-level 錯誤，而那種 data 層級的 error 交給 GraphQL 的 Type Validation。這邊 [UserError!]! 保證就算沒有錯誤也會回傳空 array。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AuthorUpdatePayload &#123;</span><br><span class="line">  userErrors: [UserError!]!</span><br><span class="line">  author: Author</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> UserError &#123;</span><br><span class="line">  message: <span class="built_in">String</span>!</span><br><span class="line"></span><br><span class="line">  # Path to input field which caused the error.</span><br><span class="line">  field: [<span class="built_in">String</span>!]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Rule #23: </span><br><span class="line">Most payload fields for a mutation should be nullable,</span><br><span class="line">unless there is really a value to return in every possible error case.</span><br></pre></td></tr></table></figure>
+<p>payload 裡面大部分的欄位建議不要加上 non-null 以免限制 schema 的發展</p>
+<hr>
+<h3 id="總結一下"><a href="#總結一下" class="headerlink" title="總結一下"></a>總結一下</h3><ul>
+<li>在 Query 裡建議使用「名詞」而非「動名詞」，更能夠表達 Graph 的概念。</li>
+<li>為了增加文件可讀性，建議 Mutation 命名形式為 TypeName<action></li>
+<li>把 input 抽出來做為 type 提升 schema 可讀性，命名以 input 結尾</li>
+<li>建議為每一個 Mutation 設計一個專屬 Response type，並都加上 userErrors field 紀錄 user/business-level 錯誤訊息，命名以 Payload 結尾</li>
+<li>Payload 的 field type 非必要都不要加上 not null</li>
+</ul>
+<hr>
+<h3 id="再修改一下，同時加上分頁功能…"><a href="#再修改一下，同時加上分頁功能…" class="headerlink" title="再修改一下，同時加上分頁功能…"></a>再修改一下，同時加上分頁功能…</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    author(author_id: ID!): Author</span></span><br><span class="line"><span class="string">    authors(limit: Int, page: Int): Authors</span></span><br><span class="line"><span class="string">    post(post_id: ID!): Post</span></span><br><span class="line"><span class="string">    posts(limit: Int, page: Int): Posts</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Mutation &#123;    </span></span><br><span class="line"><span class="string">    authorCreate(input: AuthorInput!): AuthorCreatePayload</span></span><br><span class="line"><span class="string">    authorUpdate(author_id: ID!, input: AuthorInput!): AuthorUpdatePayload</span></span><br><span class="line"><span class="string">    authorDelete(author_id: ID!): AuthorDeletePayload</span></span><br><span class="line"><span class="string">    postCreate(author_id: ID!, input: PostInput!): PostCreatePayload</span></span><br><span class="line"><span class="string">    postUpdate(post_id: ID!, input: PostInput!): PostUpdatePayload</span></span><br><span class="line"><span class="string">    postDelete(post_id: ID!): PostDeletePayload</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Author &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    posts: [Post!]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Authors &#123;</span></span><br><span class="line"><span class="string">    page: pagination</span></span><br><span class="line"><span class="string">    list: [Author!]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Post &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    title: String</span></span><br><span class="line"><span class="string">    text: String</span></span><br><span class="line"><span class="string">    author: Author</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Posts &#123;</span></span><br><span class="line"><span class="string">    page: pagination</span></span><br><span class="line"><span class="string">    list: [Post!]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type pagination &#123;</span></span><br><span class="line"><span class="string">    page: Int</span></span><br><span class="line"><span class="string">    pages: Int</span></span><br><span class="line"><span class="string">    count: Int</span></span><br><span class="line"><span class="string">    limit: Int</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  input AuthorInput &#123;</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  input PostInput &#123;</span></span><br><span class="line"><span class="string">    title: String</span></span><br><span class="line"><span class="string">    text: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type AuthorCreatePayload &#123;</span></span><br><span class="line"><span class="string">    userErrors: [UserError!]!</span></span><br><span class="line"><span class="string">    author: Author</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type UserError &#123;</span></span><br><span class="line"><span class="string">    message: String!</span></span><br><span class="line"><span class="string">    field: [String!] # Path to input field which caused the error.</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type AuthorUpdatePayload &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type AuthorDeletePayload &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type PostCreatePayload &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type PostUpdatePayload &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type PostDeletePayload &#123; ... &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="Schema-越來越複雜，是時候該做點拆解…"><a href="#Schema-越來越複雜，是時候該做點拆解…" class="headerlink" title="Schema 越來越複雜，是時候該做點拆解…"></a>Schema 越來越複雜，是時候該做點拆解…</h3><ul>
+<li><p>The role player</p>
+<ul>
+<li>新人容易進入狀況</li>
+<li>專案範圍擴大時可能會增加維護難度<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">└── src</span><br><span class="line">    ├── app.js</span><br><span class="line">    ├── models</span><br><span class="line">    │   ├── authorModel.js</span><br><span class="line">    │   └── postModel.js</span><br><span class="line">    ├── resolvers</span><br><span class="line">    │   ├── authorResolvers.js</span><br><span class="line">    │   ├── postResolvers.js    </span><br><span class="line">    │   └── index.js</span><br><span class="line">    └── typeDefs</span><br><span class="line">        ├── index.js</span><br><span class="line">        ├── query.js</span><br><span class="line">        └── Authors</span><br><span class="line">        │   └── index.js        </span><br><span class="line">        └── Posts</span><br><span class="line">            ├── postType.js </span><br><span class="line">            ├── replyType.js</span><br><span class="line">            └── index.js</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>The domain expert</p>
+<ul>
+<li>領域分明，減少維護難度</li>
+<li>專案初期難以預測專案範圍，容易切割領域錯誤<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── package.json</span><br><span class="line">└── src</span><br><span class="line">    ├── Authors</span><br><span class="line">    │   ├── authorModel.js</span><br><span class="line">    │   ├── index.js</span><br><span class="line">    │   ├── resolvers.js</span><br><span class="line">    │   └── typeDef.js</span><br><span class="line">    ├── Posts</span><br><span class="line">    │   ├── postModel.js</span><br><span class="line">    │   ├── replyModel.js    </span><br><span class="line">    │   ├── index.js</span><br><span class="line">    │   ├── resolvers.js</span><br><span class="line">    │   └── typeDef.js    </span><br><span class="line">    └── index.js</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="接下來以-role-player-的方式拆解-typeDefs"><a href="#接下來以-role-player-的方式拆解-typeDefs" class="headerlink" title="接下來以 role player 的方式拆解 typeDefs"></a>接下來以 role player 的方式拆解 typeDefs</h3><p>祈禱 live coding 拆解架構不會失敗…</p>
+<p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; typeDefs &#125; = <span class="built_in">require</span>(<span class="string">'./typeDefs'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; resolvers &#125; = <span class="built_in">require</span>(<span class="string">'./resolvers'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="再來根據-schema-實作-resolvers"><a href="#再來根據-schema-實作-resolvers" class="headerlink" title="再來根據 schema 實作 resolvers"></a>再來根據 schema 實作 resolvers</h3><p>authorResolvers.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; getAuthor, getAuthors, createAuthor, updateAuthor, deleteAuthor &#125; = <span class="built_in">require</span>(<span class="string">'../models/authorModel'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> authorResolver = &#123; </span><br><span class="line">  Query: &#123;</span><br><span class="line">    author: <span class="function">(<span class="params">_parent, &#123; author_id &#125;</span>) =&gt;</span> getAuthor(author_id), <span class="comment">//Promise or Object</span></span><br><span class="line">    authors: <span class="function">(<span class="params">_parent, &#123; limit, page &#125;</span>) =&gt;</span> getAuthors(limit, page),</span><br><span class="line">  &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    authorCreate: <span class="function">(<span class="params">_parent, &#123; input &#125;</span>) =&gt;</span> createAuthor(input),</span><br><span class="line">    authorUpdate: <span class="function">(<span class="params">_parent, &#123; author_id, input&#125; </span>) =&gt;</span> updateAuthor(author_id, input),</span><br><span class="line">    authorDelete: <span class="function">(<span class="params">_parent, &#123; author_id &#125;</span>) =&gt;</span> deleteAuthor(author_id),</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; authorResolver &#125;</span><br></pre></td></tr></table></figure>
+
+
+<p>postResolvers.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; getAuthor &#125; = <span class="built_in">require</span>(<span class="string">'../models/authorModel'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; getPost, getPosts, createPost, updatePost, deletePost, getReplies, getPostsByAuthor &#125; = <span class="built_in">require</span>(<span class="string">'../models/postModel'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> postResolver = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    post: <span class="function">(<span class="params">_parent, &#123; post_id &#125;</span>) =&gt;</span> getPost(post_id), <span class="comment">//Promise or Object</span></span><br><span class="line">    posts: <span class="function">(<span class="params">_parent, &#123; limit, page &#125;</span>) =&gt;</span> getPosts(limit, page),</span><br><span class="line">  &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    postCreate: <span class="function">(<span class="params">_parent, &#123; author_id, input &#125;</span>) =&gt;</span> createPost(author_id, input),</span><br><span class="line">    postUpdate: <span class="function">(<span class="params">_parent, &#123; post_id, input &#125;</span>) =&gt;</span> updatePost(post_id, input),</span><br><span class="line">    postDelete: <span class="function">(<span class="params">_parent, &#123; post_id &#125;</span>) =&gt;</span> deletePost(post_id),</span><br><span class="line">  &#125;,</span><br><span class="line">  Post: &#123;</span><br><span class="line">    author: <span class="function">(<span class="params">_parent</span>) =&gt;</span> getAuthor(_parent.author_id),</span><br><span class="line">  &#125;,</span><br><span class="line">  Author: &#123;</span><br><span class="line">    <span class="comment">//temp code, 註解 model DataLoader code</span></span><br><span class="line">    posts: <span class="function">(<span class="params">_parent</span>) =&gt;</span> getPostsByAuthor([_parent.id]),</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; postResolver &#125;</span><br></pre></td></tr></table></figure>
+
+<p>index.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; authorResolver &#125; = <span class="built_in">require</span>(<span class="string">'./authorResolvers'</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; postResolver &#125; = <span class="built_in">require</span>(<span class="string">'./postResolvers'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> resolvers = [authorResolver, postResolver];</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123; resolvers &#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="再來對照一下之前提到的…"><a href="#再來對照一下之前提到的…" class="headerlink" title="再來對照一下之前提到的…"></a>再來對照一下之前提到的…</h3><ol>
+<li>Resolver 必須根據 Schema 定義的 Query, Mutation 來實作</li>
+<li>Object Type 中的 field 可另外實作</li>
+<li>取得資料欄位必須符合 Object Type 定義，否則會報錯</li>
+<li>parent 資料取決於上一階 resolver 從 model 取得哪些資料，而非使用者查詢的欄位。</li>
+</ol>
+<hr>
+<h3 id="或許你已經發現，如果可以無限制的往下個階層查下去…"><a href="#或許你已經發現，如果可以無限制的往下個階層查下去…" class="headerlink" title="或許你已經發現，如果可以無限制的往下個階層查下去…"></a>或許你已經發現，如果可以無限制的往下個階層查下去…</h3><h2 id="會使用大量的-Connection"><a href="#會使用大量的-Connection" class="headerlink" title="會使用大量的 Connection !!"></a>會使用大量的 Connection !!</h2><hr>
+<h3 id="Batching-amp-Cacheing"><a href="#Batching-amp-Cacheing" class="headerlink" title="Batching &amp; Cacheing"></a>Batching &amp; Cacheing</h3><ul>
+<li>DataLoader: 用於解決一個 GQL request 讀取過多重複的 object 所造成的效能浪費。確認資料不常變動，用量很大且查詢結構複雜時再使用。因為用量小時速度反而稍慢，且必須處理讀取與清除 cache 機制。</li>
+<li>By default, resource caching will use an in-memory LRU cache</li>
+<li>When running multiple server instances…<ul>
+<li>apollo-server-cache-memcached </li>
+<li>apollo-server-cache-redis</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="實作-DataLoader-寫入-cache"><a href="#實作-DataLoader-寫入-cache" class="headerlink" title="實作 DataLoader: 寫入 cache"></a>實作 DataLoader: 寫入 cache</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> DataLoader = <span class="built_in">require</span>(<span class="string">'dataloader'</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> loaders = &#123;</span><br><span class="line">  postsByAuthor: <span class="keyword">new</span> DataLoader(getPostsByAuthor),</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> postResolver = &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//取消註解 model DataLoader code</span></span><br><span class="line">    posts: <span class="function">(<span class="params">_parent</span>) =&gt;</span> loaders.postsByAuthor.load(_parent.id)</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="實作-DataLoader-清除-cache"><a href="#實作-DataLoader-清除-cache" class="headerlink" title="實作 DataLoader: 清除 cache"></a>實作 DataLoader: 清除 cache</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> postResolver = &#123;</span><br><span class="line">    ...</span><br><span class="line">    postCreate: <span class="keyword">async</span> (_parent, &#123; author_id, input &#125;) =&gt; &#123;</span><br><span class="line">      loaders.postsByAuthor.clear(+author_id); </span><br><span class="line">      <span class="keyword">return</span> createPost(author_id, input);</span><br><span class="line">    &#125;,</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Union"><a href="#Union" class="headerlink" title="Union"></a>Union</h3><p>可以將多個結果一次查詢出來，以實作一個全域搜尋(作者、文章)為例：</p>
+<h4 id="schema-先定義一個-union-type，決定由哪些既有-type-組合為輸出結果"><a href="#schema-先定義一個-union-type，決定由哪些既有-type-組合為輸出結果" class="headerlink" title="schema 先定義一個 union type，決定由哪些既有 type 組合為輸出結果"></a>schema 先定義一個 union type，決定由哪些既有 type 組合為輸出結果</h4><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  ...  </span></span><br><span class="line"><span class="string">  type Author &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    postCount: Int</span></span><br><span class="line"><span class="string">    posts: [Post!]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type Post &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    title: String</span></span><br><span class="line"><span class="string">    text: String</span></span><br><span class="line"><span class="string">    author: Author</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  union FullSearchResult = Post | Author</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;  </span></span><br><span class="line"><span class="string">    ...</span></span><br><span class="line"><span class="string">    search(text: String!): [FullSearchResult!]</span></span><br><span class="line"><span class="string">  &#125;  </span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="這邊需針對-union-type-實作-resolveType，來告知-Query-的-field-對應的-Object-type。例如查詢的-field-有-name，那對應的-Object-type-為-Author。"><a href="#這邊需針對-union-type-實作-resolveType，來告知-Query-的-field-對應的-Object-type。例如查詢的-field-有-name，那對應的-Object-type-為-Author。" class="headerlink" title="這邊需針對 union type 實作 __resolveType，來告知 Query 的 field 對應的 Object type。例如查詢的 field 有 name，那對應的 Object type 為 Author。"></a>這邊需針對 union type 實作 __resolveType，來告知 Query 的 field 對應的 Object type。例如查詢的 field 有 name，那對應的 Object type 為 Author。</h4><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> resolvers = gql<span class="string">`</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">  FullSearchResult: &#123;</span></span><br><span class="line"><span class="string">    __resolveType(obj) &#123;</span></span><br><span class="line"><span class="string">      if (obj.name) return 'Author';</span></span><br><span class="line"><span class="string">      if (obj.title || obj.text) return 'Post';</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      return null;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125; </span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="最後再實作撈資料的部分"><a href="#最後再實作撈資料的部分" class="headerlink" title="最後再實作撈資料的部分"></a>最後再實作撈資料的部分</h4><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> resolvers = gql<span class="string">`</span></span><br><span class="line"><span class="string">  Query: &#123;</span></span><br><span class="line"><span class="string">    search: async (_parent, &#123; text &#125;) =&gt; &#123;</span></span><br><span class="line"><span class="string">      let authors = await getAuthors(0, 0, text);</span></span><br><span class="line"><span class="string">      let posts = await getPosts(0, 0, text);</span></span><br><span class="line"><span class="string">      let result = authors.list.concat(posts.list);</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">      return result;</span></span><br><span class="line"><span class="string">    &#125;</span></span><br><span class="line"><span class="string">  &#125;,</span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+
+<p>從以上 code 不難看出定義了 union type 後，雖然讓前端 Query 簡潔了一點，但讓後端程式複雜度高出了不少。除非特殊使用情境，否則效益不高，一般多重 Query 便足以應付。</p>
+<hr>
+<h4 id="下面這-union-schema-用法也不錯"><a href="#下面這-union-schema-用法也不錯" class="headerlink" title="下面這 union schema 用法也不錯"></a>下面這 union schema 用法也不錯</h4><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  ...  </span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">  type PasswordWrong &#123;</span></span><br><span class="line"><span class="string">    messgae: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type AuthFail &#123;</span></span><br><span class="line"><span class="string">    requiredRole: String</span></span><br><span class="line"><span class="string">    messgae: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  union AuthResult = User | PasswordWrong | AuthFail</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;  </span></span><br><span class="line"><span class="string">    ...</span></span><br><span class="line"><span class="string">    UserAuth: AuthResult</span></span><br><span class="line"><span class="string">  &#125;  </span></span><br><span class="line"><span class="string">  ...</span></span><br><span class="line"><span class="string">`</span>;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/02/25/apollo-graphql-1/" class="post-title-link" itemprop="url">Re:從零開始的GraphQL生活 Overview</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-02-25 11:29:00 / Modified: 11:30:22" itemprop="dateCreated datePublished" datetime="2020-02-25T11:29:00+08:00">2020-02-25</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Re-從零開始的GraphQL生活-Overview"><a href="#Re-從零開始的GraphQL生活-Overview" class="headerlink" title="Re:從零開始的GraphQL生活 Overview"></a>Re:從零開始的GraphQL生活 Overview</h1><p>Re:ゼロから始める GraphQL 生活 Overview</p>
+<hr>
+<h2 id="初探GraphQL"><a href="#初探GraphQL" class="headerlink" title="初探GraphQL"></a>初探GraphQL</h2><ul>
+<li>GraphQL Summit <a href="http://bit.ly/2YWorm8" target="_blank" rel="noopener">http://bit.ly/2YWorm8</a></li>
+<li>探索自己的 Github 資訊 <a href="https://developer.github.com/v4/explorer/" target="_blank" rel="noopener">https://developer.github.com/v4/explorer/</a></li>
+<li>Apollo Docs <a href="https://www.apollographql.com/docs/" target="_blank" rel="noopener">https://www.apollographql.com/docs/</a></li>
+<li>Airbnb 案例 <a href="https://www.infoq.cn/article/WaZ5OMwZ16o86uGv7p2z" target="_blank" rel="noopener">https://www.infoq.cn/article/WaZ5OMwZ16o86uGv7p2z</a><ul>
+<li>Migration 的策略：採用 Incremental adoption，分為五個階段。每個階段都是shippable 且 fully funcational 的產品。<ul>
+<li>第一階段：Restful → GraphQL。實作 Adapater 過渡、根據 Gql Schema 用 codegen 自動產出對應的 typescript interface。</li>
+<li>第二階段：Propagate Types。加強 TypeScript Types，來提高後續階段的實作信心。在此階段不碰觸任何 Runtime behavior 與產品行為。</li>
+<li>第三階段：Apollo HOC → Hooks、Redux Store → Apollo Cache</li>
+<li>第四階段：Granular Query Fragements。逐步修改 Component Tree 抓取資料邏輯，解決第一階段的 Over-fetching issue。 </li>
+<li>第五階段：State Management：Redux Store　由　React State、Context 與 Apollo cache + resolvers 取代，讓整個 State management 上有一致的 mental model，並且減少 Redux 帶來的 boilerplate，還能享用 Apollo 自帶的 Caching 功能。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="1-GraphQL-server-with-a-connected-database"><a href="#1-GraphQL-server-with-a-connected-database" class="headerlink" title="1. GraphQL server with a connected database"></a>1. GraphQL server with a connected database</h3><p><img src="https://i.imgur.com/hm0Igna.png" alt=""></p>
+<hr>
+<h3 id="2-With-a-connected-database-and-Integration-of-existing-system"><a href="#2-With-a-connected-database-and-Integration-of-existing-system" class="headerlink" title="2. With a connected database and Integration of existing system"></a>2. With a connected database and Integration of existing system</h3><p><img src="https://i.imgur.com/Aa4AFPv.png" alt=""></p>
+<hr>
+<h3 id="3-GraphQL-layer-that-integrates-existing-systems"><a href="#3-GraphQL-layer-that-integrates-existing-systems" class="headerlink" title="3. GraphQL layer that integrates existing systems"></a>3. GraphQL layer that integrates existing systems</h3><p><img src="https://i.imgur.com/s39lOc2.png" alt=""></p>
+<hr>
+<p><img src="https://i.imgur.com/9tAkcbJ.png" alt=""></p>
+<hr>
+<h2 id="說明一下實作的目標…"><a href="#說明一下實作的目標…" class="headerlink" title="說明一下實作的目標…"></a>說明一下實作的目標…</h2><p><a href="https://github.com/kyoforing/koa-apollo-server-sample" target="_blank" rel="noopener">https://github.com/kyoforing/koa-apollo-server-sample</a></p>
+<hr>
+<h3 id="Demo-To-run-a-basic-GraphQL-server-with-existing-APIs"><a href="#Demo-To-run-a-basic-GraphQL-server-with-existing-APIs" class="headerlink" title="Demo: To run a basic GraphQL server with existing APIs."></a>Demo: To run a basic GraphQL server with existing APIs.</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; ApolloServer, gql &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-koa'</span>);</span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    hello: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    hello: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">'Hello world!'</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">&#125;);</span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br></pre></td></tr></table></figure>
+<p>VS code 裝 GraphQL 套件提高可讀性 (Author: Prisma)</p>
+<hr>
+<h3 id="GraphLQ-API-兩大基石：-Schema、Resolver"><a href="#GraphLQ-API-兩大基石：-Schema、Resolver" class="headerlink" title="GraphLQ API 兩大基石： Schema、Resolver"></a>GraphLQ API 兩大基石： Schema、Resolver</h3><ul>
+<li>Schema 定義 GraphQL API 可用的方法、Input/Output 的規範</li>
+<li>Resolver 實作 Schema 定義的方法及Input/Ouput</li>
+<li>Resolver 不可實作 Schema 不存在的方法或違反 Input/Output 格式</li>
+</ul>
+<h4 id="前端根據-Schema-菜單-下-Query-點菜-，Resolver-廚房-回傳結果-前端所要的料理"><a href="#前端根據-Schema-菜單-下-Query-點菜-，Resolver-廚房-回傳結果-前端所要的料理" class="headerlink" title="前端根據 Schema (菜單) 下 Query (點菜)，Resolver (廚房) 回傳結果 (前端所要的料理)"></a>前端根據 Schema (菜單) 下 Query (點菜)，Resolver (廚房) 回傳結果 (前端所要的料理)</h4><hr>
+<h3 id="Demo-Schema-再稍微複雜一點"><a href="#Demo-Schema-再稍微複雜一點" class="headerlink" title="Demo: Schema 再稍微複雜一點"></a>Demo: Schema 再稍微複雜一點</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; ApolloServer, gql &#125; = <span class="built_in">require</span>(<span class="string">'apollo-server-koa'</span>);</span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: Int</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    age: Int</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    me: User</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    me: <span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="keyword">return</span> &#123;<span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'Kyo'</span>, <span class="attr">age</span>: <span class="number">18</span>&#125; &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">&#125;);</span><br><span class="line">server.applyMiddleware(&#123; app &#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><img src="https://i.imgur.com/50ryp8H.png" alt=""></p>
+<hr>
+<h3 id="Object-Type"><a href="#Object-Type" class="headerlink" title="Object Type"></a>Object Type</h3><ul>
+<li>type Query 定義查詢方法</li>
+<li>type Mutation 定義新刪修方法</li>
+<li>type XXX 自定義 Object type</li>
+</ul>
+<h3 id="Default-Scalar-Type-Field-Type"><a href="#Default-Scalar-Type-Field-Type" class="headerlink" title="Default Scalar Type (Field Type)"></a>Default Scalar Type (Field Type)</h3><table>
+<thead>
+<tr>
+<th>Scalar Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Int</td>
+<td>整數</td>
+</tr>
+<tr>
+<td>Float</td>
+<td>浮點數</td>
+</tr>
+<tr>
+<td>String</td>
+<td>字串</td>
+</tr>
+<tr>
+<td>Boolean</td>
+<td>True or False</td>
+</tr>
+<tr>
+<td>ID</td>
+<td>識別碼。不限type，只管值有沒有重複</td>
+</tr>
+</tbody></table>
+<ul>
+<li>利用 Scalar Type 幫你做型別檢查時要注意：null 在任何 Scalar Type 都不會報錯</li>
+<li>除了 Default scalar type 外，也可以自訂義 Scalar type。</li>
+</ul>
+<hr>
+<h3 id="利用自訂義-Enum-作為-Scalar-Type"><a href="#利用自訂義-Enum-作為-Scalar-Type" class="headerlink" title="利用自訂義 Enum 作為 Scalar Type"></a>利用自訂義 Enum 作為 Scalar Type</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: Int</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    age: Int,</span></span><br><span class="line"><span class="string">    personType: PersonType</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    me: User</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  enum PersonType &#123;</span></span><br><span class="line"><span class="string">    CHILD</span></span><br><span class="line"><span class="string">    ADULT</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    me: <span class="function"><span class="params">()</span> =&gt;</span> &#123; <span class="keyword">return</span> &#123;<span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'Kyo'</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">personType</span>: <span class="string">'ADULT'</span>&#125; &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="讓註解出現在你的文件"><a href="#讓註解出現在你的文件" class="headerlink" title="讓註解出現在你的文件"></a>讓註解出現在你的文件</h3><table>
+<thead>
+<tr>
+<th>註解字串</th>
+<th>行數</th>
+<th>出現在文件中</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>“</td>
+<td>單行</td>
+<td>V</td>
+</tr>
+<tr>
+<td>“””</td>
+<td>多行</td>
+<td>V</td>
+</tr>
+<tr>
+<td>#</td>
+<td>單行</td>
+<td></td>
+</tr>
+</tbody></table>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">type User &#123;</span><br><span class="line">  <span class="string">"哀低"</span></span><br><span class="line">  id: Int</span><br><span class="line">  <span class="string">""</span><span class="string">"</span></span><br><span class="line"><span class="string">  第一行註解</span></span><br><span class="line"><span class="string">  第二行註解</span></span><br><span class="line"><span class="string">  "</span><span class="string">""</span></span><br><span class="line">  name: <span class="built_in">String</span></span><br><span class="line">  #我不會出現在文件中#</span><br><span class="line">  age: Int</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="針對-type-field-再做更細部的設定"><a href="#針對-type-field-再做更細部的設定" class="headerlink" title="針對 type field 再做更細部的設定"></a>針對 type field 再做更細部的設定</h3><table>
+<thead>
+<tr>
+<th>表示方式</th>
+<th>說明</th>
+<th>範例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>!</td>
+<td>Not null</td>
+<td>name: String!</td>
+</tr>
+<tr>
+<td>[]</td>
+<td>陣列</td>
+<td>me: [User]</td>
+</tr>
+<tr>
+<td>[]!</td>
+<td>陣列必定有值/物件 (值/物件可為 null)</td>
+<td>me: [User]!</td>
+</tr>
+<tr>
+<td>[!]!</td>
+<td>陣列必定有值/物件 (值/物件不可為 null)</td>
+<td>me: [User!]!</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="Demo-Array-Not-null-N階查詢一起來"><a href="#Demo-Array-Not-null-N階查詢一起來" class="headerlink" title="Demo: Array, Not null, N階查詢一起來"></a>Demo: Array, Not null, N階查詢一起來</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; filter &#125; = <span class="built_in">require</span>(<span class="string">'lodash'</span>);</span><br><span class="line"><span class="keyword">let</span> data = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">name</span>: <span class="string">'Kyo'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">2</span>, <span class="attr">name</span>: <span class="string">'Kyo2'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">3</span>, <span class="attr">name</span>: <span class="string">'Kyo3'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">4</span>, <span class="attr">name</span>: <span class="string">'Kyo4'</span>, <span class="attr">age</span>: <span class="number">18</span> &#125;,</span><br><span class="line">];</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123;</span></span><br><span class="line"><span class="string">    id: ID!</span></span><br><span class="line"><span class="string">    name: String</span></span><br><span class="line"><span class="string">    age: Int,</span></span><br><span class="line"><span class="string">    friends: [User]</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Query &#123;</span></span><br><span class="line"><span class="string">    user(id: ID!): User</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123;</span><br><span class="line">    user: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> &#123; id &#125; = args;</span><br><span class="line">      <span class="keyword">let</span> result = filter(data, [<span class="string">'id'</span>, +id]);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> result.length &gt; <span class="number">0</span> ? result[<span class="number">0</span>]: <span class="literal">null</span>; <span class="comment">// null 改成 &#123;&#125; 時，無法通過型別檢查</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h3 id="好像還缺了什麼"><a href="#好像還缺了什麼" class="headerlink" title="好像還缺了什麼?"></a>好像還缺了什麼?</h3><hr>
+<h3 id="Demo-N-階查詢關鍵：自訂義-type-field-查詢方式"><a href="#Demo-N-階查詢關鍵：自訂義-type-field-查詢方式" class="headerlink" title="Demo: N 階查詢關鍵：自訂義 type field 查詢方式"></a>Demo: N 階查詢關鍵：自訂義 type field 查詢方式</h3><p>app.ts</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> relation = [</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">1</span>, <span class="attr">friends_id</span>: [<span class="number">2</span>, <span class="number">3</span>] &#125;,</span><br><span class="line">  &#123; <span class="attr">id</span>: <span class="number">2</span>, <span class="attr">friends_id</span>: [<span class="number">1</span>, <span class="number">3</span>] &#125;</span><br><span class="line">]</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  User: &#123;</span><br><span class="line">    friends: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> &#123; id &#125; = parent;</span><br><span class="line">      <span class="keyword">let</span> filter_relation = filter(relation, [<span class="string">'id'</span>, +id]);</span><br><span class="line">      <span class="keyword">let</span> result = <span class="literal">null</span>;</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">if</span> (filter_relation.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> &#123; friends_id &#125; = filter_relation[<span class="number">0</span>];</span><br><span class="line">        result = filter(data, o =&gt; friends_id.includes(o.id));</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> result; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="除了Query，當然還有資料新刪修：Mutation"><a href="#除了Query，當然還有資料新刪修：Mutation" class="headerlink" title="除了Query，當然還有資料新刪修：Mutation"></a>除了Query，當然還有資料新刪修：Mutation</h3><p><img src="https://i.imgur.com/A2RQtka.png" alt=""></p>
+<hr>
+<h3 id="Mutation-的-Schema-與-Resolver"><a href="#Mutation-的-Schema-與-Resolver" class="headerlink" title="Mutation 的 Schema 與 Resolver"></a>Mutation 的 Schema 與 Resolver</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type Query &#123; ... &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    addUser(id: Int!, name: String!, age: Int): User</span></span><br><span class="line"><span class="string">    deleteUser(id: ID!): Response</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Response &#123;</span></span><br><span class="line"><span class="string">    message: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  User: &#123; ... &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    addUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> &#123; id, name, age &#125; = args;</span><br><span class="line">      <span class="keyword">let</span> user = &#123; id, name, age &#125;;</span><br><span class="line">      data.push(user);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> user; </span><br><span class="line">    &#125;,</span><br><span class="line">    deleteUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> response = &#123; <span class="attr">message</span>: <span class="string">'OK'</span>&#125;;</span><br><span class="line">      <span class="comment">//刪除 User 邏輯</span></span><br><span class="line">      <span class="keyword">return</span> response; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="將-Mutation-的-Input-獨立成為一個-type"><a href="#將-Mutation-的-Input-獨立成為一個-type" class="headerlink" title="將 Mutation 的 Input 獨立成為一個 type"></a>將 Mutation 的 Input 獨立成為一個 type</h3><p><img src="https://i.imgur.com/MKEMPOJ.png" alt=""></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> typeDefs = gql<span class="string">`</span></span><br><span class="line"><span class="string">  type User &#123; ... &#125;</span></span><br><span class="line"><span class="string">  type Query &#123; ... &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Mutation &#123;</span></span><br><span class="line"><span class="string">    addUser(input: addUser): User</span></span><br><span class="line"><span class="string">    deleteUser(id: ID!): Response</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  type Response &#123;</span></span><br><span class="line"><span class="string">    message: String</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  </span></span><br><span class="line"><span class="string">  input addUser &#123;</span></span><br><span class="line"><span class="string">    id: Int!</span></span><br><span class="line"><span class="string">    name: String!</span></span><br><span class="line"><span class="string">    age: Int</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">`</span>;</span><br><span class="line"><span class="keyword">const</span> resolvers = &#123;</span><br><span class="line">  Query: &#123; ... &#125;,</span><br><span class="line">  User: &#123; ... &#125;,</span><br><span class="line">  Mutation: &#123;</span><br><span class="line">    addUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">let</span> &#123; id, name, age &#125; = args.input;</span><br><span class="line">      <span class="keyword">let</span> user = &#123; id, name, age &#125;;</span><br><span class="line">      data.push(user);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> user; </span><br><span class="line">    &#125;,</span><br><span class="line">    deleteUser: <span class="function">(<span class="params">parent, args, context</span>) =&gt;</span> &#123; </span><br><span class="line">      <span class="keyword">let</span> response = &#123; <span class="attr">message</span>: <span class="string">'OK'</span>&#125;;</span><br><span class="line">      <span class="comment">//刪除 User 邏輯</span></span><br><span class="line">      <span class="keyword">return</span> response; </span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="Resolver-field-parent-args-context"><a href="#Resolver-field-parent-args-context" class="headerlink" title="Resolver field (parent, args, context)"></a>Resolver field (parent, args, context)</h3><ul>
+<li>Parent<ul>
+<li>多階查詢時，上一階傳遞過來的資料</li>
+<li>不會因為前端少 Query 上一階欄位，而導致下一階無法取得資料。</li>
+<li>只能取得上一階的資料，無法取得上上階或更多階之前的資料</li>
+</ul>
+</li>
+<li>Args<ul>
+<li>Query 時所輸入的參數皆置於此</li>
+<li>若有在 Mutation 使用 input type，則必須用 args.input 才可取到值</li>
+</ul>
+</li>
+<li>Context<ul>
+<li>全域變數所在地</li>
+<li>適合將 User 身分與權限置於此，供其他 Resolver 驗證</li>
+</ul>
+</li>
+</ul>
+<p>Error Handler <a href="http://bit.ly/3bSlUiK" target="_blank" rel="noopener">http://bit.ly/3bSlUiK</a> <a href="http://bit.ly/39OdF5v" target="_blank" rel="noopener">http://bit.ly/39OdF5v</a></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Error Handler</span></span><br><span class="line">app.use(<span class="keyword">async</span> (ctx, next) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> user = ctx.headers.authorization || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (user) &#123;</span><br><span class="line">    <span class="keyword">await</span> next();</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ctx.status = <span class="number">400</span>;</span><br><span class="line">    <span class="keyword">return</span> ctx.body = &#123; <span class="attr">message</span>: <span class="string">'authorization failed'</span>&#125;;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  context: <span class="function">(<span class="params">&#123; ctx &#125;</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> user = ctx.headers.authorization || <span class="string">''</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123; user &#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="最後再加個客製化-logger"><a href="#最後再加個客製化-logger" class="headerlink" title="最後再加個客製化 logger"></a>最後再加個客製化 logger</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123; gqlLogger &#125; = <span class="built_in">require</span>(<span class="string">'./lib/logger'</span>);</span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ApolloServer(&#123;</span><br><span class="line">  typeDefs,</span><br><span class="line">  resolvers,</span><br><span class="line">  extensions: [<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">new</span> gqlLogger()],</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="來統整一下目前-GraphQL-用到的東西吧"><a href="#來統整一下目前-GraphQL-用到的東西吧" class="headerlink" title="來統整一下目前 GraphQL 用到的東西吧"></a>來統整一下目前 GraphQL 用到的東西吧</h3><table>
+<thead>
+<tr>
+<th>GraphQL 用語</th>
+<th>說明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Schema</td>
+<td>Graph QL 定義文件</td>
+</tr>
+<tr>
+<td>Resolver</td>
+<td>GraphQL 文件的實作</td>
+</tr>
+<tr>
+<td>Query Type</td>
+<td>查詢資料需求</td>
+</tr>
+<tr>
+<td>Mutation Type</td>
+<td>新刪修資料需求</td>
+</tr>
+<tr>
+<td>Object Type</td>
+<td>對物件進行定義，提高 Schema 可讀性與共用性</td>
+</tr>
+<tr>
+<td>Scalar Type</td>
+<td>欄位型別宣告，強化型別檢查</td>
+</tr>
+<tr>
+<td>Schema 註解</td>
+<td>讓文件更加清楚</td>
+</tr>
+<tr>
+<td>Type Modifier</td>
+<td>Not null 與陣列</td>
+</tr>
+<tr>
+<td>自定義 Resolver</td>
+<td>提高 Resolver 的共用性，簡化 N 階查詢實作</td>
+</tr>
+<tr>
+<td>Input Type</td>
+<td>對 Mutation Input 另外定義 Type，提高 Schema 可讀性與共用性</td>
+</tr>
+<tr>
+<td>Resolver field</td>
+<td>Resolver 的 3 種 input: parent, args, context</td>
+</tr>
+</tbody></table>
+<hr>
+<h3 id="Schema-命名大小寫習慣"><a href="#Schema-命名大小寫習慣" class="headerlink" title="Schema 命名大小寫習慣"></a>Schema 命名大小寫習慣</h3><ul>
+<li>type name：PascalCase </li>
+<li>field name：camelCase</li>
+<li>enum name: camelCase</li>
+<li>enum value: ALL_CAPS</li>
+</ul>
+<hr>
+<h3 id="開始做一些-Real-case，假設有一個討論區需求是這樣"><a href="#開始做一些-Real-case，假設有一個討論區需求是這樣" class="headerlink" title="開始做一些 Real case，假設有一個討論區需求是這樣"></a>開始做一些 Real case，假設有一個討論區需求是這樣</h3><ol>
+<li>可查詢作者清單，可針對單一作者查詢/新增/修改/刪除，需紀錄作者名字</li>
+<li>可查詢文章清單，可針對單一文章查詢/新增/修改/刪除，需紀錄文章標題與內容</li>
+<li>查作者時，可查詢他發表過的文章資訊</li>
+<li>查文章時，可查詢該文章作者資訊</li>
+</ol>
+<h4 id="這時候-Schema-你會怎麼訂"><a href="#這時候-Schema-你會怎麼訂" class="headerlink" title="這時候 Schema 你會怎麼訂?"></a>這時候 Schema 你會怎麼訂?</h4>
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/19/refactor-chapter2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -834,12 +1693,12 @@ functions:
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-count">9</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
-        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-count">9</span>
         <span class="site-state-item-name">tags</span>
       </div>
   </nav>
