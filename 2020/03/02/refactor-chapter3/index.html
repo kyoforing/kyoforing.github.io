@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="tags: 重構Chapter3 程式碼異味 - 整理筆記Mysterious Name 神秘的名稱重新取一個更特定的名字，讓程式碼可讀性變高  Change Function Declaration (147) 修改函式宣告式 Rename Variable (162) 更改變數名稱 Rename Field (285) 更改欄位名稱  Duplicated Code 重複的程式碼提取重複的程式">
+<meta name="keywords" content="Refactor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chapter3 程式碼異味 - 整理筆記">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;03&#x2F;02&#x2F;refactor-chapter3&#x2F;index.html">
+<meta property="og:site_name" content="奇歐雜筆">
+<meta property="og:description" content="tags: 重構Chapter3 程式碼異味 - 整理筆記Mysterious Name 神秘的名稱重新取一個更特定的名字，讓程式碼可讀性變高  Change Function Declaration (147) 修改函式宣告式 Rename Variable (162) 更改變數名稱 Rename Field (285) 更改欄位名稱  Duplicated Code 重複的程式碼提取重複的程式">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-04-08T08:51:34.637Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/03/02/refactor-chapter3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Chapter3 程式碼異味 - 整理筆記 | 奇歐雜筆</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">奇歐雜筆</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+        <p class="site-subtitle">Just murmur</p>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/03/02/refactor-chapter3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chapter3 程式碼異味 - 整理筆記
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-03-02 15:24:00" itemprop="dateCreated datePublished" datetime="2020-03-02T15:24:00+08:00">2020-03-02</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-04-08 16:51:34" itemprop="dateModified" datetime="2020-04-08T16:51:34+08:00">2020-04-08</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h6 id="tags-重構"><a href="#tags-重構" class="headerlink" title="tags: 重構"></a>tags: <code>重構</code></h6><h1 id="Chapter3-程式碼異味-整理筆記"><a href="#Chapter3-程式碼異味-整理筆記" class="headerlink" title="Chapter3 程式碼異味 - 整理筆記"></a>Chapter3 程式碼異味 - 整理筆記</h1><h3 id="Mysterious-Name-神秘的名稱"><a href="#Mysterious-Name-神秘的名稱" class="headerlink" title="Mysterious Name 神秘的名稱"></a>Mysterious Name 神秘的名稱</h3><p>重新取一個更特定的名字，讓程式碼可讀性變高</p>
+<ul>
+<li>Change Function Declaration (147) 修改函式宣告式</li>
+<li>Rename Variable (162) 更改變數名稱</li>
+<li>Rename Field (285) 更改欄位名稱</li>
+</ul>
+<h3 id="Duplicated-Code-重複的程式碼"><a href="#Duplicated-Code-重複的程式碼" class="headerlink" title="Duplicated Code 重複的程式碼"></a>Duplicated Code 重複的程式碼</h3><p>提取重複的程式碼，轉為方法或類別，並重新整理變數</p>
+<ul>
+<li>Extract Function (126) 提取函式</li>
+<li>Slide Statements (262) 移動陳述式</li>
+<li>Pull Up Method (402) 例如提取子類別的方法移到父類別</li>
+</ul>
+<h3 id="Long-Function-冗長的函式"><a href="#Long-Function-冗長的函式" class="headerlink" title="Long Function 冗長的函式"></a>Long Function 冗長的函式</h3><p>長壽的程式往往都使用短函式，函式命名具說明性且提高可讀性。雖然有可能增加些微的效能負擔，但幾乎可以無視。故應該積極分解冗長的函示。</p>
+<ul>
+<li>Extract Function (126) 提取函式</li>
+<li>Replace Temp with Query (208) 將暫時變數換成查詢函示</li>
+<li>Introduce Parameter Object (165) 使用參數物件，簡化參數數量</li>
+<li>Preserve Whole Object (368) 保留整個物件，作為參數傳遞</li>
+<li>Replace Function with Command (389) 將函示換成命令物件，例如轉換為類別中的 execute() 自訂義方法。只有在程式碼複雜難以重構時，才會選擇這方法</li>
+<li>Decompose Conditional (304)：分解條件邏輯</li>
+<li>Replace Conditional with Polymorphism (316) 將條件式換成多型</li>
+<li>Split Loop (267) 拆開迴圈</li>
+</ul>
+<h3 id="Long-Parameter-List-冗長的參數列"><a href="#Long-Parameter-List-冗長的參數列" class="headerlink" title="Long Parameter List 冗長的參數列"></a>Long Parameter List 冗長的參數列</h3><ul>
+<li><p>Replace Parameter with Query (374) 將參數換成查詢程式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Order</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(order) &#123;</span><br><span class="line">    <span class="keyword">this</span>.quantity = order.quantity;</span><br><span class="line">    <span class="keyword">this</span>.itemPrice = order.itemPrice;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">get</span> finalPrice() &#123;</span><br><span class="line">    <span class="keyword">const</span> basePrice = <span class="keyword">this</span>.quantity * <span class="keyword">this</span>.itemPrice;</span><br><span class="line">    <span class="keyword">let</span> discountLevel;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.quantity &gt; <span class="number">100</span>) discountLevel = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">else</span> discountLevel = <span class="number">1</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.discountPrice(basePrice, discountLevel);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  discountPrice(basePrice, discountLevel) &#123;</span><br><span class="line">    <span class="keyword">switch</span> (discountLevel) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>: <span class="keyword">return</span> basePrice * <span class="number">0.95</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">2</span>: <span class="keyword">return</span> basePrice * <span class="number">0.9</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Order</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(order) &#123;</span><br><span class="line">    <span class="keyword">this</span>.quantity = order.quantity;</span><br><span class="line">    <span class="keyword">this</span>.itemPrice = order.itemPrice;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">get</span> finalPrice() &#123;</span><br><span class="line">    <span class="keyword">const</span> basePrice = <span class="keyword">this</span>.quantity * <span class="keyword">this</span>.itemPrice;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.discountPrice(basePrice);</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">get</span> discountLevel() &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.quantity &gt; <span class="number">100</span> ? <span class="number">2</span> : <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  discountPrice(basePrice) &#123;</span><br><span class="line">    <span class="keyword">switch</span> (<span class="keyword">this</span>.discountLevel) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>: <span class="keyword">return</span> basePrice * <span class="number">0.95</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">2</span>: <span class="keyword">return</span> basePrice * <span class="number">0.9</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>Preserve Whole Object (368) 保留整個物件作為參數傳遞</p>
+</li>
+<li><p>Introduce Parameter Object (165) 使用物件簡化參數數量</p>
+</li>
+<li><p>Remove Flag Argument (362) 移除旗標引數</p>
+</li>
+<li><p>Combine Function into Class (170) 將函數移入類別</p>
+</li>
+</ul>
+<h3 id="Global-Data-全域資料"><a href="#Global-Data-全域資料" class="headerlink" title="Global Data 全域資料"></a>Global Data 全域資料</h3><p>全域資料若是變數，應小心使用，可使用下列手法加以監控。但如果為常數，則比較不需重構。</p>
+<ul>
+<li>Encapsulate Variable (156) 封裝變數</li>
+</ul>
+<h3 id="Mutable-Data-可變資料"><a href="#Mutable-Data-可變資料" class="headerlink" title="Mutable Data 可變資料"></a>Mutable Data 可變資料</h3><p>用下列手法控制不受限制的資料修改所帶來的風險</p>
+<ul>
+<li>Encapsulate Variable (156) 封裝變數</li>
+<li>Split Variable (280) 拆開變數。若一個變數有兩個以上用途，應分成兩個變數。</li>
+<li>Slide Statement (262) 移動x陳述式</li>
+<li>Extract Function (126) 提取函式</li>
+<li>Separate Query from Modifier (354) 將查詢函式和修改函式分離。過一個函式同時做查詢與修改，則應分成兩個函式。</li>
+<li>Remove Setting Method (383) 移除 set 方法。</li>
+<li>Replace Derived Variable with Query (289) 將衍生的變數換成查詢函式。</li>
+<li>Combine Function into Class (170) 將函數移入類別</li>
+<li>Combine Function into Transform (175) 將函式組成轉換函式</li>
+<li>Change Reference to Value (294) 將參考改成值。<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>._phoneNo = <span class="keyword">new</span> PhoneNo();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">get</span> areaCode() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._phoneNo.areaCode; &#125;</span><br><span class="line">  <span class="keyword">set</span> areaCode(arg) &#123; <span class="keyword">this</span>._phoneNo.areaCode = arg; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;&#125;</span><br><span class="line">  <span class="keyword">get</span> areaCode() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._araCode; &#125;</span><br><span class="line">  <span class="keyword">set</span> areaCode(arg) &#123; <span class="keyword">this</span>._areaCode = arg; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改後</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;&#125;</span><br><span class="line">  <span class="keyword">get</span> areaCode() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._phoneNo.areaCode; &#125;</span><br><span class="line">  <span class="keyword">set</span> areaCode(arg) &#123; <span class="keyword">this</span>._phoneNo = <span class="keyword">new</span> Phone(arg) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Phone</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(areaCode) &#123;</span><br><span class="line">    <span class="keyword">this</span>._areaCode = areaCode;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">get</span> areaCode() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._araCode; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h3 id="Divergent-Change-發散式修改"><a href="#Divergent-Change-發散式修改" class="headerlink" title="Divergent Change 發散式修改"></a>Divergent Change 發散式修改</h3><p>如果因需求進行一個修改，必須修改多個函式，可用下列手法解決</p>
+<ul>
+<li>Split Phase (181) 拆成不同階段</li>
+<li>Move Function (232) 移動函式</li>
+<li>Extract Function (126) 提取函式</li>
+<li>Extract Class (213) 提取類別</li>
+</ul>
+<h3 id="Shotgun-Surgery-霰彈式修改"><a href="#Shotgun-Surgery-霰彈式修改" class="headerlink" title="Shotgun Surgery 霰彈式修改"></a>Shotgun Surgery 霰彈式修改</h3><p>類似發散式修改，如果因需求進行一個修改，必須針對多個類別進行小規模編輯，可用下列手法解決</p>
+<ul>
+<li>Move Function (232) 移動函式</li>
+<li>Move Field (242) 移動欄位</li>
+<li>Combine Function into Class (170) 將函數移入類別</li>
+<li>Combine Function into Transform (175) 將函式組成轉換函式</li>
+<li>Split Phase (181) 拆成不同階段</li>
+<li>Inline Function (137) 將函式內聯</li>
+<li>Inline Class (218) 內聯類別</li>
+</ul>
+<h3 id="Feature-Envy-依戀情結"><a href="#Feature-Envy-依戀情結" class="headerlink" title="Feature Envy 依戀情結"></a>Feature Envy 依戀情結</h3><p>函式呼叫另一個類別的函式，比呼叫自己類別函式還頻繁，不如就成全它將它移到另一個類別</p>
+<ul>
+<li>Move Function (232) 移動函式</li>
+<li>Extract Function (126) 提取函式</li>
+</ul>
+<h3 id="Data-Clumps-資料泥團"><a href="#Data-Clumps-資料泥團" class="headerlink" title="Data Clumps 資料泥團"></a>Data Clumps 資料泥團</h3><p>常常可以在幾個類別裡看到同樣的欄位群，這些形影不離的資料需要一個家。</p>
+<ul>
+<li>Extract Class (213) 提取類別</li>
+<li>Preserve Whole Object (368) 保留整個物件作為參數傳遞</li>
+<li>Introduce Parameter Object (165) 使用物件簡化參數數量</li>
+</ul>
+<h3 id="Primitive-Obsession-基本型態偏執"><a href="#Primitive-Obsession-基本型態偏執" class="headerlink" title="Primitive Obsession 基本型態偏執"></a>Primitive Obsession 基本型態偏執</h3><p>對於基本型態（整數、浮點數、字串）過於執著，不願意自行定義基礎型態</p>
+<ul>
+<li>Replace Primitive with Object (203) 將基本元素換成物件</li>
+<li>Replace Type Code with Subclasses (417) 將型別代碼換成子類別</li>
+<li>Replace Conditional with Polymorphism (316) 將條件式換成多型</li>
+<li>Extract Class (213) 提取類別</li>
+<li>Introduce Parameter Object (165) 使用物件簡化參數數量</li>
+</ul>
+<h3 id="Repeated-Switches-重複的切換邏輯"><a href="#Repeated-Switches-重複的切換邏輯" class="headerlink" title="Repeated Switches 重複的切換邏輯"></a>Repeated Switches 重複的切換邏輯</h3><p>將重複的 switch 轉為多型</p>
+<ul>
+<li>Replace Conditional with Polymorphism (316) 將條件式換成多型</li>
+</ul>
+<h3 id="Loops-迴圈"><a href="#Loops-迴圈" class="headerlink" title="Loops 迴圈"></a>Loops 迴圈</h3><p>用語法糖取代原始的迴圈程式碼</p>
+<ul>
+<li>Replace Loop with Pipeline (271) 將迴圈改成流程</li>
+</ul>
+<h3 id="Lazy-Element-冗員元素"><a href="#Lazy-Element-冗員元素" class="headerlink" title="Lazy Element 冗員元素"></a>Lazy Element 冗員元素</h3><p>因需求變更，導致某些變數、物件或類別等等不再使用。應適時將之淘汰或整合起來。</p>
+<ul>
+<li>Inline Function (137) 將函式內聯</li>
+<li>Inline Class (218) 內聯類別</li>
+<li>Collapse Hierarchy (349) 摺疊類別階層</li>
+</ul>
+<h3 id="Speculative-Generality-畫大餅"><a href="#Speculative-Generality-畫大餅" class="headerlink" title="Speculative Generality 畫大餅"></a>Speculative Generality 畫大餅</h3><p>一開始為了不一定會發生的未來，建立了一些機制，如果後來發現用不到，是時後該做些清理。</p>
+<ul>
+<li>Inline Function (137) 將函式內聯</li>
+<li>Inline Class (218) 內聯類別</li>
+<li>Collapse Hierarchy (349) 摺疊類別階層</li>
+<li>Change Function Declaration (147) 修改函式宣告式</li>
+<li>Remove Dead Code (277) 移除死碼</li>
+</ul>
+<h3 id="Temporary-Field-暫時欄位"><a href="#Temporary-Field-暫時欄位" class="headerlink" title="Temporary Field 暫時欄位"></a>Temporary Field 暫時欄位</h3><p>有時類別中會有個欄位在某些情況才設值，為了提高可讀性，可採用下列方法</p>
+<ul>
+<li>Extract Class (213) 提取類別</li>
+<li>Move Function (232) 移動函式</li>
+<li>Introduce Special Case (334) 加入特例</li>
+</ul>
+<h3 id="Message-Chain-過度耦合的訊息鍊"><a href="#Message-Chain-過度耦合的訊息鍊" class="headerlink" title="Message Chain 過度耦合的訊息鍊"></a>Message Chain 過度耦合的訊息鍊</h3><p>程式碼可能有一連串的叫用，就像 chain 一樣緊密的耦合，一但物件間關係有任何變化，使用方會被迫做相應的修改。</p>
+<ul>
+<li>High Delegate (222) 隱藏委託</li>
+<li>Extract Function (126) 提取函式</li>
+<li>Move Function (232) 移動函式</li>
+</ul>
+<h3 id="Middle-Man-中間人"><a href="#Middle-Man-中間人" class="headerlink" title="Middle Man 中間人"></a>Middle Man 中間人</h3><p>封裝往往伴隨著委託，但委託有可能被濫用</p>
+<ul>
+<li>Remove Middle Man (225) 移除中間人</li>
+<li>Inline Function (137) 將函式內聯</li>
+<li>Replace Superclass with Delegate (462) 將超類別換成委託類別</li>
+<li>Replace Subclass with Delegate (441) 將子類別換成委託類別</li>
+</ul>
+<h3 id="Insider-Trading-內線交易"><a href="#Insider-Trading-內線交易" class="headerlink" title="Insider Trading 內線交易"></a>Insider Trading 內線交易</h3><p>模組間的交換資料，應盡力將之浮上檯面</p>
+<ul>
+<li>Move Function (232) 移動函式</li>
+<li>Move Field (242) 移動欄位</li>
+<li>High Delegate (222) 隱藏委託</li>
+<li>Replace Superclass with Delegate (462) 將超類別換成委託類別</li>
+<li>Replace Subclass with Delegate (441) 將子類別換成委託類別</li>
+</ul>
+<h3 id="Large-Class-龐大的類別"><a href="#Large-Class-龐大的類別" class="headerlink" title="Large Class 龐大的類別"></a>Large Class 龐大的類別</h3><p>做太多的事的類別往往有許多欄位，也容易出現重複的程式碼</p>
+<ul>
+<li>Extract Class (213) 提取類別</li>
+<li>Extract Superclass (433) 提取超類別</li>
+<li>Replace Type Code with Subclasses (417) 將型別代碼換成子類別</li>
+</ul>
+<h3 id="Alternative-Classes-with-Different-Interface-異曲同工的類別"><a href="#Alternative-Classes-with-Different-Interface-異曲同工的類別" class="headerlink" title="Alternative Classes with Different Interface 異曲同工的類別"></a>Alternative Classes with Different Interface 異曲同工的類別</h3><p>若要從 A 類別改用 B 類別時，這兩個類別必須實作同一個介面。</p>
+<ul>
+<li>Change Function Declaration (147) 修改函式宣告式</li>
+<li>Move Function (232) 移動函式</li>
+<li>Extract Superclass (433) 提取超類別</li>
+</ul>
+<h3 id="Data-Class-呆板的資料類別"><a href="#Data-Class-呆板的資料類別" class="headerlink" title="Data Class 呆板的資料類別"></a>Data Class 呆板的資料類別</h3><p>這種類別可能只有欄位與存取的方法。應試著去活用它，根據類別特性加入函式或移除 set 方法等等</p>
+<ul>
+<li>Encapsulated Record (188) 封裝紀錄</li>
+<li>Remove Setting Method (383) 移除 set 方法</li>
+<li>Move Function (232) 移動函式</li>
+<li>Extract Function (126) 提取函式</li>
+<li>Split Phase (181) 拆成不同階段</li>
+</ul>
+<h3 id="Refused-Bequest-被拒絕的遺產"><a href="#Refused-Bequest-被拒絕的遺產" class="headerlink" title="Refused Bequest 被拒絕的遺產"></a>Refused Bequest 被拒絕的遺產</h3><p>子類別在繼承父類別的方法與資料時，實際上可能會拒絕父類別繼承過來的東西。這代表繼承階層是錯的，或許可使用下列方法重構。但若影響很小，就不建議重構。</p>
+<ul>
+<li>Push Down Method (413) 下移方法</li>
+<li>Push Down Field (415) 下移欄位</li>
+<li>Replace Superclass with Delegate (462) 將超類別換成委託類別</li>
+<li>Replace Subclass with Delegate (441) 將子類別換成委託類別</li>
+</ul>
+<h3 id="Comments-過多的註解"><a href="#Comments-過多的註解" class="headerlink" title="Comments 過多的註解"></a>Comments 過多的註解</h3><p>如果註解太多，可能是想掩蓋糟糕的設計。正常情況應多使用下列手法來取代註解。</p>
+<ul>
+<li>Extract Function (126) 提取函式</li>
+<li>Change Function Declaration (147) 修改函式宣告式</li>
+<li>Introduce Assertion (349) 加入斷言</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Refactor/" rel="tag"># Refactor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/02/25/apollo-graphql-4/" rel="next" title="Re:從零開始的GraphQL生活 補充">
+                  <i class="fa fa-chevron-left"></i> Re:從零開始的GraphQL生活 補充
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+                <a href="/2020/04/08/refactor-chapter6_7/" rel="prev" title="Chapter6 第一組重構、Chapter7 封裝">
+                  Chapter6 第一組重構、Chapter7 封裝 <i class="fa fa-chevron-right"></i>
+                </a>
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#tags-重構"><span class="nav-number">1.</span> <span class="nav-text">tags: 重構</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Chapter3-程式碼異味-整理筆記"><span class="nav-number"></span> <span class="nav-text">Chapter3 程式碼異味 - 整理筆記</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mysterious-Name-神秘的名稱"><span class="nav-number"></span> <span class="nav-text">Mysterious Name 神秘的名稱</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Duplicated-Code-重複的程式碼"><span class="nav-number"></span> <span class="nav-text">Duplicated Code 重複的程式碼</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Long-Function-冗長的函式"><span class="nav-number"></span> <span class="nav-text">Long Function 冗長的函式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Long-Parameter-List-冗長的參數列"><span class="nav-number"></span> <span class="nav-text">Long Parameter List 冗長的參數列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Global-Data-全域資料"><span class="nav-number"></span> <span class="nav-text">Global Data 全域資料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Mutable-Data-可變資料"><span class="nav-number"></span> <span class="nav-text">Mutable Data 可變資料</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Divergent-Change-發散式修改"><span class="nav-number"></span> <span class="nav-text">Divergent Change 發散式修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Shotgun-Surgery-霰彈式修改"><span class="nav-number"></span> <span class="nav-text">Shotgun Surgery 霰彈式修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Feature-Envy-依戀情結"><span class="nav-number"></span> <span class="nav-text">Feature Envy 依戀情結</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-Clumps-資料泥團"><span class="nav-number"></span> <span class="nav-text">Data Clumps 資料泥團</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Primitive-Obsession-基本型態偏執"><span class="nav-number"></span> <span class="nav-text">Primitive Obsession 基本型態偏執</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Repeated-Switches-重複的切換邏輯"><span class="nav-number"></span> <span class="nav-text">Repeated Switches 重複的切換邏輯</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Loops-迴圈"><span class="nav-number"></span> <span class="nav-text">Loops 迴圈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lazy-Element-冗員元素"><span class="nav-number"></span> <span class="nav-text">Lazy Element 冗員元素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Speculative-Generality-畫大餅"><span class="nav-number"></span> <span class="nav-text">Speculative Generality 畫大餅</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Temporary-Field-暫時欄位"><span class="nav-number"></span> <span class="nav-text">Temporary Field 暫時欄位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Message-Chain-過度耦合的訊息鍊"><span class="nav-number"></span> <span class="nav-text">Message Chain 過度耦合的訊息鍊</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Middle-Man-中間人"><span class="nav-number"></span> <span class="nav-text">Middle Man 中間人</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insider-Trading-內線交易"><span class="nav-number"></span> <span class="nav-text">Insider Trading 內線交易</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Large-Class-龐大的類別"><span class="nav-number"></span> <span class="nav-text">Large Class 龐大的類別</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Alternative-Classes-with-Different-Interface-異曲同工的類別"><span class="nav-number"></span> <span class="nav-text">Alternative Classes with Different Interface 異曲同工的類別</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Data-Class-呆板的資料類別"><span class="nav-number"></span> <span class="nav-text">Data Class 呆板的資料類別</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Refused-Bequest-被拒絕的遺產"><span class="nav-number"></span> <span class="nav-text">Refused Bequest 被拒絕的遺產</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Comments-過多的註解"><span class="nav-number"></span> <span class="nav-text">Comments 過多的註解</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Kyoforing"
+    src="https://i.imgur.com/Th4Am8x.jpg">
+  <p class="site-author-name" itemprop="name">Kyoforing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kyoforing</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

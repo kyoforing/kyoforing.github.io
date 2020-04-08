@@ -50,34 +50,28 @@
   };
 </script>
 
-  <meta name="description" content="前言相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。 Why serverless當中我們也參考了 Terraform, Apex 等知名">
-<meta name="keywords" content="serverless,AWS,Lambda">
-<meta property="og:type" content="article">
-<meta property="og:title" content="AWS Lambda Rest API：利用 serverless framework從開發到部屬">
-<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2018&#x2F;08&#x2F;13&#x2F;AWS-Lambda-Serverless&#x2F;index.html">
+  <meta property="og:type" content="website">
+<meta property="og:title" content="奇歐雜筆">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;page&#x2F;2&#x2F;index.html">
 <meta property="og:site_name" content="奇歐雜筆">
-<meta property="og:description" content="前言相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。 Why serverless當中我們也參考了 Terraform, Apex 等知名">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="https:&#x2F;&#x2F;cdn-images-1.medium.com&#x2F;max&#x2F;2000&#x2F;1*lx4z0tE2-MF2ztRJOHv2pQ.png">
-<meta property="og:updated_time" content="2019-10-29T07:20:49.975Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https:&#x2F;&#x2F;cdn-images-1.medium.com&#x2F;max&#x2F;2000&#x2F;1*lx4z0tE2-MF2ztRJOHv2pQ.png">
 
-<link rel="canonical" href="http://yoursite.com/2018/08/13/AWS-Lambda-Serverless/">
+<link rel="canonical" href="http://yoursite.com/page/2/">
 
 
 <script id="page-configurations">
   // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
-    isHome: false,
-    isPost: true,
+    isHome: true,
+    isPost: false,
     isPage: false,
     isArchive: false
   };
 </script>
 
-  <title>AWS Lambda Rest API：利用 serverless framework從開發到部屬 | 奇歐雜筆</title>
+  <title>奇歐雜筆</title>
   
 
 
@@ -173,10 +167,10 @@
             
 
   <div class="posts-expand">
-      
+        
   
   
-  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/08/13/AWS-Lambda-Serverless/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -190,7 +184,8 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          AWS Lambda Rest API：利用 serverless framework從開發到部屬
+          
+            <a href="/2018/08/13/AWS-Lambda-Serverless/" class="post-title-link" itemprop="url">AWS Lambda Rest API：利用 serverless framework從開發到部屬</a>
         </h1>
 
         <div class="post-meta">
@@ -221,7 +216,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。</p>
+          <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>相信大家對於 serverless 並不陌生，所以在此並不會討論 serverless 與傳統專案的架構差異與優缺點。這次分享的是我使用 Node.js 8.10 開發 lambda function，利用 serverless framework 幫我進行部屬，在這個開發過程中注意的要點與踩到的地雷 😬。</p>
 <h3 id="Why-serverless"><a href="#Why-serverless" class="headerlink" title="Why serverless"></a>Why serverless</h3><p>當中我們也參考了 <a href="https://www.terraform.io/" target="_blank" rel="noopener">Terraform</a>, <a href="http://apex.run/" target="_blank" rel="noopener">Apex</a> 等知名部屬工具。Terraform 的強項是偏重於雲端基礎架構管理，Apex 則是專精於 AWS lambda function 的打包與部署，對於其他 AWS 資源的連動與設定較為缺乏。相較之下，<a href="https://serverless.com/" target="_blank" rel="noopener">serverless</a> 除了著重於 function 的開發外，也支援 API Gateway, Cloudwatch Schedule 的連動設定，開發社群也提供許多外掛加強 serverless 的特異功能。更重要的是不只支援 AWS，同時也支援 Azure, GCP, IBM OpenWhisk，以防有個萬一 👻。</p>
 <h3 id="About-Lambda-function"><a href="#About-Lambda-function" class="headerlink" title="About Lambda function"></a>About Lambda function</h3><p>Lambda function 是基於容器技術，以事件觸發條件而啟動，可由HTTP、API呼叫、AWS或第三方服務來啟動。本篇文章是以串接 API Gateway，API 呼叫的方式來啟動為例。在啟動 Lambda function 前，有幾項參數是必須了解與設定。</p>
 <ol>
@@ -332,41 +327,27 @@ functions:
 <h3 id="Integrated-with-CI-CD"><a href="#Integrated-with-CI-CD" class="headerlink" title="Integrated with CI/CD"></a>Integrated with CI/CD</h3><p>在完成這一系列的 serverless REST API project 建置後，要串接 CI/CD 也是沒有問題的。只要 commit 到 git 中，再交由 CI/CD 監聽事件，自動執行 unit test 與 deploy 指令，即可完成自動部屬。</p>
 <h2 id="結語"><a href="#結語" class="headerlink" title="結語"></a>結語</h2><p>在這次的 AWS Lambda Rest API 的建置過程當中，確實感受到 serverless 的魅力，高可用性、低耦合性、價格便宜，很適合亟需成長的新創公司快速建立服務，但也發現在很多應用上，仍有其軟硬體限制，綁手綁腳。但說穿了，對後端工程師來說，就是多一項武器可以使用，針對各種不同的環境與狀況，決定適用的專案架構，才是正確面對 serverless 的態度。</p>
 
+      
     </div>
 
     
     
     
-
       <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/serverless/" rel="tag"># serverless</a>
-              <a href="/tags/AWS/" rel="tag"># AWS</a>
-              <a href="/tags/Lambda/" rel="tag"># Lambda</a>
-          </div>
-
-        
-
-          <div class="post-nav">
-            <div class="post-nav-next post-nav-item">
-            </div>
-
-            <span class="post-nav-divider"></span>
-
-            <div class="post-nav-prev post-nav-item">
-                <a href="/2018/12/26/Sync-Table-Schema/" rel="prev" title="如何同步2個不同Database Name的Table Schema (MySQL)">
-                  如何同步2個不同Database Name的Table Schema (MySQL) <i class="fa fa-chevron-right"></i>
-                </a>
-            </div>
-          </div>
+        <div class="post-eof"></div>
       </footer>
-    
   </article>
   
   
   
 
   </div>
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
 
 
           </div>
@@ -395,7 +376,6 @@ functions:
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Why-serverless"><span class="nav-number">2.</span> <span class="nav-text">Why serverless</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Lambda-function"><span class="nav-number">3.</span> <span class="nav-text">About Lambda function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Lambda-Project"><span class="nav-number">4.</span> <span class="nav-text">About Lambda Project</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Familiar-with-serverless-config-—-switch-env-by-command"><span class="nav-number">5.</span> <span class="nav-text">Familiar with serverless config — switch env by command</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Serverless-debug"><span class="nav-number">6.</span> <span class="nav-text">Serverless debug</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Minimize-your-lambda-function"><span class="nav-number">7.</span> <span class="nav-text">Minimize your lambda function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reuse-database-connection"><span class="nav-number">8.</span> <span class="nav-text">Reuse database connection</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Warmup-lambda-function"><span class="nav-number">9.</span> <span class="nav-text">Warmup lambda function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Serverless-Unit-Test"><span class="nav-number">10.</span> <span class="nav-text">Serverless Unit Test</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reaching-CloudFormation-resources-limit"><span class="nav-number">11.</span> <span class="nav-text">Reaching CloudFormation resources limit</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Integrated-with-CI-CD"><span class="nav-number">12.</span> <span class="nav-text">Integrated with CI/CD</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#結語"><span class="nav-number"></span> <span class="nav-text">結語</span></a></div>
       </div>
       <!--/noindex-->
 
