@@ -171,6 +171,87 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/08/refactor-chapter6_7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="奇歐雜筆">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/08/refactor-chapter6_7/" class="post-title-link" itemprop="url">Chapter6 第一組重構、Chapter7 封裝</a>
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-04-08 16:44:33 / Modified: 16:44:19" itemprop="dateCreated datePublished" datetime="2020-04-08T16:44:33+08:00">2020-04-08</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h6 id="tags-重構"><a href="#tags-重構" class="headerlink" title="tags: 重構"></a>tags: <code>重構</code></h6><h1 id="Chapter6-第一組重構、Chapter7-封裝"><a href="#Chapter6-第一組重構、Chapter7-封裝" class="headerlink" title="Chapter6 第一組重構、Chapter7 封裝"></a>Chapter6 第一組重構、Chapter7 封裝</h1><h2 id="Chapter6-第一組重構"><a href="#Chapter6-第一組重構" class="headerlink" title="Chapter6 第一組重構"></a>Chapter6 第一組重構</h2><h4 id="Extract-Function-提取函式-126"><a href="#Extract-Function-提取函式-126" class="headerlink" title="Extract Function 提取函式 (126)"></a>Extract Function 提取函式 (126)</h4><p>如果一段程式碼需要費一點心思才能看懂，則須適當地將程式提取出來，取一個適當的函式名稱，提高程式碼可讀性</p>
+<h4 id="Inline-Function-將函式內聯-137"><a href="#Inline-Function-將函式內聯-137" class="headerlink" title="Inline Function 將函式內聯 (137)"></a>Inline Function 將函式內聯 (137)</h4><p>透過將函式內聯，將多個函式簡化成一個函示，提高程式碼可讀性</p>
+<h4 id="Extract-Variable-提取變數-141"><a href="#Extract-Variable-提取變數-141" class="headerlink" title="Extract Variable 提取變數 (141)"></a>Extract Variable 提取變數 (141)</h4><p>Inline Function 的逆操作，若內聯的函式可讀性不高或過於複雜，需要提出變數或函示提高可讀性，則可提取變數，若於類別中，則可提取出 getter 函式。</p>
+<h4 id="Inline-Variable-內聯變數-146"><a href="#Inline-Variable-內聯變數-146" class="headerlink" title="Inline Variable 內聯變數 (146)"></a>Inline Variable 內聯變數 (146)</h4><p>透過將變數內聯，減少區域變數，減少程式碼發生錯誤的機率</p>
+<h4 id="Change-Function-Declaration-修改函式宣告式-147"><a href="#Change-Function-Declaration-修改函式宣告式-147" class="headerlink" title="Change Function Declaration 修改函式宣告式 (147)"></a>Change Function Declaration 修改函式宣告式 (147)</h4><p>若因為需求或提高可讀性，修改函式名稱的一套流程。</p>
+<ul>
+<li>簡單作法：可直接使用 IDE 工具協助修改 (如 vscode 的重新命名符號)</li>
+<li>遷移作法：寫一個中介函式，確保有地方沒修改到時仍可正常運作。等所有地方修改完後再移除中介函式。</li>
+</ul>
+<h4 id="Encapsulate-Variable-封裝變數-156"><a href="#Encapsulate-Variable-封裝變數-156" class="headerlink" title="Encapsulate Variable 封裝變數 (156)"></a>Encapsulate Variable 封裝變數 (156)</h4><p>若程式有對全域變數進行存取，但又難以重構的話，折衷的辦法就是將全域變數封裝為函式，所有存取全域變數的程式碼皆須使用此函式進行存取。</p>
+<h4 id="Introduce-Parameter-Object-使用參數物件-165"><a href="#Introduce-Parameter-Object-使用參數物件-165" class="headerlink" title="Introduce Parameter Object 使用參數物件 (165)"></a>Introduce Parameter Object 使用參數物件 (165)</h4><p>傳入函式的多個參數，可以包裝成物件或類別傳入</p>
+<h4 id="Combine-Functions-into-Class-將函式移入類別-170"><a href="#Combine-Functions-into-Class-將函式移入類別-170" class="headerlink" title="Combine Functions into Class 將函式移入類別 (170)"></a>Combine Functions into Class 將函式移入類別 (170)</h4><p>將相關聯的函示組成類別，提高可讀性與重用性，並確保核心變數與函式一致。</p>
+<h4 id="Combine-Functions-into-Transform-將函式組成轉換函式-175"><a href="#Combine-Functions-into-Transform-將函式組成轉換函式-175" class="headerlink" title="Combine Functions into Transform 將函式組成轉換函式 (175)"></a>Combine Functions into Transform 將函式組成轉換函式 (175)</h4><p>建立一個轉換函式，將資料的加工與計算集中於此函式 (enrich function)<br>若能【將函式移入類別】則使用【將函式移入類別】較佳</p>
+<h4 id="Split-Phase-拆成不同階段-181"><a href="#Split-Phase-拆成不同階段-181" class="headerlink" title="Split Phase 拆成不同階段 (181)"></a>Split Phase 拆成不同階段 (181)</h4><p>將一個函式中多個步驟的動作，依步驟拆成多個函式</p>
+<h2 id="Chapter7-封裝"><a href="#Chapter7-封裝" class="headerlink" title="Chapter7 封裝"></a>Chapter7 封裝</h2><h4 id="Encapsulate-Record-封裝紀錄-188"><a href="#Encapsulate-Record-封裝紀錄-188" class="headerlink" title="Encapsulate Record 封裝紀錄 (188)"></a>Encapsulate Record 封裝紀錄 (188)</h4><p>將相關的變數封裝成類別，利用 getter、setter 存取變數。以往可能會用 hashmap 相關的語法 (hash, map, hashmap, dictionary) 達到類似的效果，如果被使用於小範圍問題不大，但若使用範圍越來越大，則採用封裝紀錄的方式較佳。</p>
+<h4 id="Encapsulate-Collection-封裝集合-198"><a href="#Encapsulate-Collection-封裝集合-198" class="headerlink" title="Encapsulate Collection 封裝集合 (198)"></a>Encapsulate Collection 封裝集合 (198)</h4><p>將集合封裝成類別，類別中提供新增、移除、查詢方法。若是簡單基本的集合，使用程式範圍小，可用現有的集合資料型態即可。</p>
+<h4 id="Replace-Primitive-with-Object-將基本元素換成物件-203"><a href="#Replace-Primitive-with-Object-將基本元素換成物件-203" class="headerlink" title="Replace Primitive with Object 將基本元素換成物件 (203)"></a>Replace Primitive with Object 將基本元素換成物件 (203)</h4><p>將資料與相關的操作封裝成類別，類別中的方法可以將一些基本元素換成物件，更加清楚地表達程式目的。(這邊比較抽象，可見書上例子 p.207)</p>
+<h4 id="Replace-Temp-with-Query-將暫時變數換成查詢函式-208"><a href="#Replace-Temp-with-Query-將暫時變數換成查詢函式-208" class="headerlink" title="Replace Temp with Query 將暫時變數換成查詢函式 (208)"></a>Replace Temp with Query 將暫時變數換成查詢函式 (208)</h4><p>適合處理==只被計算一次，之後都只會被讀取==的暫時變數，將之轉為查詢函式。</p>
+<h4 id="Extract-Class-提取類別-213"><a href="#Extract-Class-提取類別-213" class="headerlink" title="Extract Class 提取類別 (213)"></a>Extract Class 提取類別 (213)</h4><p>當類別越來越龐大，可以適時提取子類別，母類別於建構子實體化子類別，減少母類別的責任，降低母類別的複雜度，甚至讓子類別可被重用。</p>
+<h4 id="Inline-Class-內聯類別-218"><a href="#Inline-Class-內聯類別-218" class="headerlink" title="Inline Class 內聯類別 (218)"></a>Inline Class 內聯類別 (218)</h4><p>Extract Class 提取類別的逆操作。通常用於重構後，類別被提取的意義不大，可與其它現有類別做整合。</p>
+<h4 id="Hide-Delegate-隱藏委託-222"><a href="#Hide-Delegate-隱藏委託-222" class="headerlink" title="Hide Delegate 隱藏委託 (222)"></a>Hide Delegate 隱藏委託 (222)</h4><p>建立一個方法(委託)，隱藏中間的實作</p>
+<h4 id="Remove-Middle-Man-移除中間人-225"><a href="#Remove-Middle-Man-移除中間人-225" class="headerlink" title="Remove Middle Man 移除中間人 (225)"></a>Remove Middle Man 移除中間人 (225)</h4><p>Hide Delegate 隱藏委託的逆操作，改變隱藏的程度</p>
+<h4 id="Substitute-Algorithm-替換演算法-228"><a href="#Substitute-Algorithm-替換演算法-228" class="headerlink" title="Substitute Algorithm 替換演算法 (228)"></a>Substitute Algorithm 替換演算法 (228)</h4><p>利用新的寫法簡化現有程式碼</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+        
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="en">
     <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/25/apollo-graphql-4/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1693,7 +1774,7 @@ functions:
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-count">10</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
