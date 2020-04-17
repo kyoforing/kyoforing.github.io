@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.2',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: 'Copy',
+      copy_success: 'Copied',
+      copy_failure: 'Copy failed'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="tags: 重構Chapter12 處理繼承 - 整理筆記Pull Up Method 提升方法 (402)如果兩個子類別中，有一個方法有相同的邏輯，則可以將該方法提升至超類別。 Pull Up Field 提升欄位 (406) 【javascipt無法實作】如果兩個子類別中，有一個相同用途的欄位，則可以將該欄位提升至超類別。 Pull Up Constructor Body 提升建構式內文 (4">
+<meta name="keywords" content="Refactor">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chapter12 處理繼承 - 整理筆記">
+<meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;04&#x2F;16&#x2F;refactor-chapter12&#x2F;index.html">
+<meta property="og:site_name" content="Kyo&#39;s note">
+<meta property="og:description" content="tags: 重構Chapter12 處理繼承 - 整理筆記Pull Up Method 提升方法 (402)如果兩個子類別中，有一個方法有相同的邏輯，則可以將該方法提升至超類別。 Pull Up Field 提升欄位 (406) 【javascipt無法實作】如果兩個子類別中，有一個相同用途的欄位，則可以將該欄位提升至超類別。 Pull Up Constructor Body 提升建構式內文 (4">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-04-17T04:56:35.057Z">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://yoursite.com/2020/04/16/refactor-chapter12/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Chapter12 處理繼承 - 整理筆記 | Kyo's note</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Kyo's note</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/16/refactor-chapter12/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://i.imgur.com/Th4Am8x.jpg">
+      <meta itemprop="name" content="Kyoforing">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Kyo's note">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chapter12 處理繼承 - 整理筆記
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-04-16 17:34:35" itemprop="dateCreated datePublished" datetime="2020-04-16T17:34:35+08:00">2020-04-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-04-17 12:56:35" itemprop="dateModified" datetime="2020-04-17T12:56:35+08:00">2020-04-17</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h6 id="tags-重構"><a href="#tags-重構" class="headerlink" title="tags: 重構"></a>tags: <code>重構</code></h6><h1 id="Chapter12-處理繼承-整理筆記"><a href="#Chapter12-處理繼承-整理筆記" class="headerlink" title="Chapter12 處理繼承 - 整理筆記"></a>Chapter12 處理繼承 - 整理筆記</h1><h4 id="Pull-Up-Method-提升方法-402"><a href="#Pull-Up-Method-提升方法-402" class="headerlink" title="Pull Up Method 提升方法 (402)"></a>Pull Up Method 提升方法 (402)</h4><p>如果兩個子類別中，有一個方法有相同的邏輯，則可以將該方法提升至超類別。</p>
+<h4 id="Pull-Up-Field-提升欄位-406-【javascipt無法實作】"><a href="#Pull-Up-Field-提升欄位-406-【javascipt無法實作】" class="headerlink" title="Pull Up Field 提升欄位 (406) 【javascipt無法實作】"></a>Pull Up Field 提升欄位 (406) 【javascipt無法實作】</h4><p>如果兩個子類別中，有一個相同用途的欄位，則可以將該欄位提升至超類別。</p>
+<h4 id="Pull-Up-Constructor-Body-提升建構式內文-408"><a href="#Pull-Up-Constructor-Body-提升建構式內文-408" class="headerlink" title="Pull Up Constructor Body 提升建構式內文 (408)"></a>Pull Up Constructor Body 提升建構式內文 (408)</h4><p>如果兩個子類別中，有一個相同用途的欄位，則可以將該欄位提升至超類別，透過建構式賦值。如果重構過程太複雜，則可以考慮用 Replace Constructor with Factory Function (386)</p>
+<h4 id="Push-Down-Method-下移方法-413"><a href="#Push-Down-Method-下移方法-413" class="headerlink" title="Push Down Method 下移方法 (413)"></a>Push Down Method 下移方法 (413)</h4><p>如果方法只與一個子類別有關，則將該方法從超類別移至子類別。</p>
+<h4 id="Push-Down-Field-下移欄位-415-【javascipt無法實作】"><a href="#Push-Down-Field-下移欄位-415-【javascipt無法實作】" class="headerlink" title="Push Down Field 下移欄位 (415) 【javascipt無法實作】"></a>Push Down Field 下移欄位 (415) 【javascipt無法實作】</h4><p>如果欄位只與一個子類別有關，則將該欄位從超類別移至子類別。</p>
+<h4 id="Replace-Type-Code-with-Subclasses-將型別代碼換成子類別-417"><a href="#Replace-Type-Code-with-Subclasses-將型別代碼換成子類別-417" class="headerlink" title="Replace Type Code with Subclasses 將型別代碼換成子類別 (417)"></a>Replace Type Code with Subclasses 將型別代碼換成子類別 (417)</h4><p>根據型別代碼的值將條件邏輯換成子類別。如果邏輯式是相近的，可以對函式執行 Replace Conditional with Polymorphism (316) 轉成多型。如果差異較大，也可以各別建立類別。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Before</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createEmployee</span>(<span class="params">name <span class="keyword">type</span></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Employee(name, <span class="keyword">type</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//After</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createEmployee</span>(<span class="params">name <span class="keyword">type</span></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">switch</span> (<span class="keyword">type</span>) &#123;</span><br><span class="line">        <span class="keyword">case</span> <span class="string">"engineer"</span>: <span class="keyword">return</span> <span class="keyword">new</span> Engineer(name);</span><br><span class="line">        <span class="keyword">case</span> <span class="string">"salesman"</span>: <span class="keyword">return</span> <span class="keyword">new</span> Salesman(name);</span><br><span class="line">        <span class="keyword">case</span> <span class="string">"manager"</span>: <span class="keyword">return</span> <span class="keyword">new</span> Manager(name);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="Remove-Subclass-移除子類別-426"><a href="#Remove-Subclass-移除子類別-426" class="headerlink" title="Remove Subclass 移除子類別 (426)"></a>Remove Subclass 移除子類別 (426)</h4><p>Replace Type Code with Subclasses 的逆操作。隨著系統演變，子類別可能越來越少，這時可考慮移除子類別，將部分功能移回超類別。</p>
+<h4 id="Extract-Superclass-提取超類別-433"><a href="#Extract-Superclass-提取超類別-433" class="headerlink" title="Extract Superclass 提取超類別 (433)"></a>Extract Superclass 提取超類別 (433)</h4><p>如果有兩個類別做類似的事情，可以利用繼承將相似的東西拉到超類別</p>
+<h4 id="Collapse-Hierarchy-折疊類別階層-439"><a href="#Collapse-Hierarchy-折疊類別階層-439" class="headerlink" title="Collapse Hierarchy 折疊類別階層 (439)"></a>Collapse Hierarchy 折疊類別階層 (439)</h4><p>如果超類別與子類別差異不大，可以直接合併。</p>
+<h4 id="Replace-Subclass-with-Delegate-將子類別換成委託類別-441"><a href="#Replace-Subclass-with-Delegate-將子類別換成委託類別-441" class="headerlink" title="Replace Subclass with Delegate 將子類別換成委託類別 (441)"></a>Replace Subclass with Delegate 將子類別換成委託類別 (441)</h4><p>子類別繼承超類別是一個高耦合的關係，修改超類別容易破壞子類別。有時我們會因為一些需求讓子類別與超類別漸行漸遠，這時可以將繼承關係轉為委派關係來降低耦合度。<br>首先在超類別建立一個決定委派子類別的方法，然後在超類別的其他方法或屬性，根據委派的子類別決定回傳的結果。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Before</span></span><br><span class="line"><span class="keyword">class</span> Booking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._show = show;</span><br><span class="line">        <span class="keyword">this</span>._date = date;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasTalkBack () &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._show.hasOwnProperty(<span class="string">'talkback'</span>) &amp;&amp; !<span class="keyword">this</span>.isPeakDay;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> basePrice() &#123;</span><br><span class="line">        <span class="keyword">let</span> result = <span class="keyword">this</span>._show.price;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.isPeakDay) result += <span class="built_in">Math</span>.round(result * <span class="number">0.15</span>);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> isPeakDay() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._date === <span class="string">'Sunday'</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> PremiumBooking <span class="keyword">extends</span> Booking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date, extras</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>(show, date);</span><br><span class="line">        <span class="keyword">this</span>._extras = extras;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasTalkBack () &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._show.hasOwnProperty(<span class="string">'talkback'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> basePrice() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Math</span>.round(<span class="keyword">super</span>.basePrice + <span class="keyword">this</span>._extras.premiunFee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasDinner() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._extras.hasOwnProperty(<span class="string">'dinner'</span>) &amp;&amp; !<span class="keyword">this</span>.isPeakDay;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> show = &#123;</span><br><span class="line">    talkback: <span class="string">'enable'</span>,</span><br><span class="line">    price: <span class="number">300</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> date = <span class="string">'Sunday'</span>;</span><br><span class="line"><span class="keyword">const</span> extras = &#123;</span><br><span class="line">    premiunFee: <span class="number">50</span>,</span><br><span class="line">    dinner: <span class="literal">true</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> booking = <span class="keyword">new</span> PremiumBooking(show, date, extras);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(booking.hasTalkBack);</span><br><span class="line"><span class="built_in">console</span>.log(booking.basePrice);</span><br><span class="line"><span class="built_in">console</span>.log(booking.hasDinner);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//After</span></span><br><span class="line"><span class="keyword">class</span> Booking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._show = show;</span><br><span class="line">        <span class="keyword">this</span>._date = date;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasTalkBack () &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._premiumDelegate ? </span><br><span class="line">            <span class="keyword">this</span>._premiumDelegate.hasTalkBack : </span><br><span class="line">            <span class="keyword">this</span>._show.hasOwnProperty(<span class="string">'talkback'</span>) &amp;&amp; !<span class="keyword">this</span>.isPeakDay;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> basePrice() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._premiumDelegate ? </span><br><span class="line">            <span class="keyword">this</span>._premiumDelegate.basePrice :</span><br><span class="line">            <span class="keyword">this</span>._privateBasePrice;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasDinner() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._premiumDelegate ? <span class="keyword">this</span>._premiumDelegate.hasDinner : <span class="literal">undefined</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> _privateBasePrice() &#123;</span><br><span class="line">        <span class="keyword">let</span> result = <span class="keyword">this</span>._show.price;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>.isPeakDay) result += <span class="built_in">Math</span>.round(result * <span class="number">0.15</span>);</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> isPeakDay() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._date === <span class="string">'Sunday'</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    _bePremium(extras) &#123;</span><br><span class="line">        <span class="keyword">this</span>._premiumDelegate = <span class="keyword">new</span> PremiumBookingDelegate(<span class="keyword">this</span>, extras);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> PremiumBookingDelegate &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">hostBooking, extras</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._host = hostBooking;</span><br><span class="line">        <span class="keyword">this</span>._extras = extras;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">get</span> basePrice() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">Math</span>.round(<span class="keyword">this</span>._host._privateBasePrice + <span class="keyword">this</span>._extras.premiunFee);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasTalkBack () &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._host._show.hasOwnProperty(<span class="string">'talkback'</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> hasDinner() &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>._extras.hasOwnProperty(<span class="string">'dinner'</span>) &amp;&amp; !<span class="keyword">this</span>._host.isPeakDay;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createBooking</span>(<span class="params">show, date</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Booking(show, date);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createPremiumBooking</span>(<span class="params">show, date, extras</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> result = <span class="keyword">new</span> Booking(show, date, extras);</span><br><span class="line">    result._bePremium(extras);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> show = &#123;</span><br><span class="line">    talkback: <span class="string">'enable'</span>,</span><br><span class="line">    price: <span class="number">300</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">const</span> date = <span class="string">'Sunday'</span>;</span><br><span class="line"><span class="keyword">const</span> extras = &#123;</span><br><span class="line">    premiunFee: <span class="number">50</span>,</span><br><span class="line">    dinner: <span class="literal">true</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> booking = <span class="keyword">new</span> createPremiumBooking(show, date, extras);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(booking.hasTalkBack);</span><br><span class="line"><span class="built_in">console</span>.log(booking.basePrice);</span><br><span class="line"><span class="built_in">console</span>.log(booking.hasDinner);</span><br></pre></td></tr></table></figure>
+<h4 id="Replace-Superclass-with-Delegate-將超類別換成委託類別-462"><a href="#Replace-Superclass-with-Delegate-將超類別換成委託類別-462" class="headerlink" title="Replace Superclass with Delegate 將超類別換成委託類別 (462)"></a>Replace Superclass with Delegate 將超類別換成委託類別 (462)</h4><p>隨著需求變更，超類別函式開始不適合子類別時，子類別不應該藉由繼承來使用超類別的功能。由於子類別與超類別的高度耦合，這時可以將繼承改為委託一個單獨的物件來避免。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Before</span></span><br><span class="line"><span class="keyword">class</span> Booking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._show = show;</span><br><span class="line">        <span class="keyword">this</span>._date = date;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">get</span> show() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._show; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> PremiumBooking <span class="keyword">extends</span> Booking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date, extras</span>) &#123;</span><br><span class="line">        <span class="keyword">super</span>(show, date);</span><br><span class="line">        <span class="keyword">this</span>._extras = extras;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> extras() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._extras; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//After</span></span><br><span class="line"><span class="keyword">class</span> Booking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._show = show;</span><br><span class="line">        <span class="keyword">this</span>._date = date;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">get</span> show() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._show; &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> PremiumBooking &#123;</span><br><span class="line">    <span class="keyword">constructor</span> (<span class="params">show, date, extras</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>._booking = <span class="keyword">new</span> Booking(show, date);</span><br><span class="line">        <span class="keyword">this</span>._extras = extras;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">get</span> show() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._booking.show; &#125;</span><br><span class="line">    <span class="keyword">get</span> extras() &#123; <span class="keyword">return</span> <span class="keyword">this</span>._extras; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Refactor/" rel="tag"># Refactor</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+                <a href="/2020/04/14/refactor-chapter11/" rel="next" title="Chapter11 重構 API - 整理筆記">
+                  <i class="fa fa-chevron-left"></i> Chapter11 重構 API - 整理筆記
+                </a>
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+            </div>
+          </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-6"><a class="nav-link" href="#tags-重構"><span class="nav-number">1.</span> <span class="nav-text">tags: 重構</span></a></li></ol></li></ol></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Chapter12-處理繼承-整理筆記"><span class="nav-number"></span> <span class="nav-text">Chapter12 處理繼承 - 整理筆記</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Pull-Up-Method-提升方法-402"><span class="nav-number"></span> <span class="nav-text">Pull Up Method 提升方法 (402)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pull-Up-Field-提升欄位-406-【javascipt無法實作】"><span class="nav-number"></span> <span class="nav-text">Pull Up Field 提升欄位 (406) 【javascipt無法實作】</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Pull-Up-Constructor-Body-提升建構式內文-408"><span class="nav-number"></span> <span class="nav-text">Pull Up Constructor Body 提升建構式內文 (408)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Push-Down-Method-下移方法-413"><span class="nav-number"></span> <span class="nav-text">Push Down Method 下移方法 (413)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Push-Down-Field-下移欄位-415-【javascipt無法實作】"><span class="nav-number"></span> <span class="nav-text">Push Down Field 下移欄位 (415) 【javascipt無法實作】</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Replace-Type-Code-with-Subclasses-將型別代碼換成子類別-417"><span class="nav-number"></span> <span class="nav-text">Replace Type Code with Subclasses 將型別代碼換成子類別 (417)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Remove-Subclass-移除子類別-426"><span class="nav-number"></span> <span class="nav-text">Remove Subclass 移除子類別 (426)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Extract-Superclass-提取超類別-433"><span class="nav-number"></span> <span class="nav-text">Extract Superclass 提取超類別 (433)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Collapse-Hierarchy-折疊類別階層-439"><span class="nav-number"></span> <span class="nav-text">Collapse Hierarchy 折疊類別階層 (439)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Replace-Subclass-with-Delegate-將子類別換成委託類別-441"><span class="nav-number"></span> <span class="nav-text">Replace Subclass with Delegate 將子類別換成委託類別 (441)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Replace-Superclass-with-Delegate-將超類別換成委託類別-462"><span class="nav-number"></span> <span class="nav-text">Replace Superclass with Delegate 將超類別換成委託類別 (462)</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <img class="site-author-image" itemprop="image" alt="Kyoforing"
+    src="https://i.imgur.com/Th4Am8x.jpg">
+  <p class="site-author-name" itemprop="name">Kyoforing</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kyoforing</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.0.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

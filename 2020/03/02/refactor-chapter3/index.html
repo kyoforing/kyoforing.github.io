@@ -55,10 +55,10 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="Chapter3 程式碼異味 - 整理筆記">
 <meta property="og:url" content="http:&#x2F;&#x2F;yoursite.com&#x2F;2020&#x2F;03&#x2F;02&#x2F;refactor-chapter3&#x2F;index.html">
-<meta property="og:site_name" content="奇歐雜筆">
+<meta property="og:site_name" content="Kyo&#39;s note">
 <meta property="og:description" content="tags: 重構Chapter3 程式碼異味 - 整理筆記Mysterious Name 神秘的名稱重新取一個更特定的名字，讓程式碼可讀性變高  Change Function Declaration (147) 修改函式宣告式 Rename Variable (162) 更改變數名稱 Rename Field (285) 更改欄位名稱  Duplicated Code 重複的程式碼提取重複的程式">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-04-08T08:51:34.637Z">
+<meta property="og:updated_time" content="2020-04-17T03:40:43.002Z">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://yoursite.com/2020/03/02/refactor-chapter3/">
@@ -75,7 +75,7 @@
   };
 </script>
 
-  <title>Chapter3 程式碼異味 - 整理筆記 | 奇歐雜筆</title>
+  <title>Chapter3 程式碼異味 - 整理筆記 | Kyo's note</title>
   
 
 
@@ -119,11 +119,10 @@
     <div>
       <a href="/" class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">奇歐雜筆</span>
+        <span class="site-title">Kyo's note</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
-        <p class="site-subtitle">Just murmur</p>
   </div>
 
   <div class="site-nav-toggle">
@@ -184,7 +183,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="奇歐雜筆">
+      <meta itemprop="name" content="Kyo's note">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -205,7 +204,7 @@
                   <i class="fa fa-calendar-check-o"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2020-04-08 16:51:34" itemprop="dateModified" datetime="2020-04-08T16:51:34+08:00">2020-04-08</time>
+                <time title="Modified: 2020-04-17 11:40:43" itemprop="dateModified" datetime="2020-04-17T11:40:43+08:00">2020-04-17</time>
               </span>
 
           
@@ -229,7 +228,7 @@
 <ul>
 <li>Extract Function (126) 提取函式</li>
 <li>Slide Statements (262) 移動陳述式</li>
-<li>Pull Up Method (402) 例如提取子類別的方法移到父類別</li>
+<li>Pull Up Method (402) 例如提取子類別的方法移到超類別</li>
 </ul>
 <h3 id="Long-Function-冗長的函式"><a href="#Long-Function-冗長的函式" class="headerlink" title="Long Function 冗長的函式"></a>Long Function 冗長的函式</h3><p>長壽的程式往往都使用短函式，函式命名具說明性且提高可讀性。雖然有可能增加些微的效能負擔，但幾乎可以無視。故應該積極分解冗長的函示。</p>
 <ul>
@@ -379,7 +378,7 @@
 <li>Extract Function (126) 提取函式</li>
 <li>Split Phase (181) 拆成不同階段</li>
 </ul>
-<h3 id="Refused-Bequest-被拒絕的遺產"><a href="#Refused-Bequest-被拒絕的遺產" class="headerlink" title="Refused Bequest 被拒絕的遺產"></a>Refused Bequest 被拒絕的遺產</h3><p>子類別在繼承父類別的方法與資料時，實際上可能會拒絕父類別繼承過來的東西。這代表繼承階層是錯的，或許可使用下列方法重構。但若影響很小，就不建議重構。</p>
+<h3 id="Refused-Bequest-被拒絕的遺產"><a href="#Refused-Bequest-被拒絕的遺產" class="headerlink" title="Refused Bequest 被拒絕的遺產"></a>Refused Bequest 被拒絕的遺產</h3><p>子類別在繼承超類別的方法與資料時，實際上可能會拒絕超類別繼承過來的東西。這代表繼承階層是錯的，或許可使用下列方法重構。但若影響很小，就不建議重構。</p>
 <ul>
 <li>Push Down Method (413) 下移方法</li>
 <li>Push Down Field (415) 下移欄位</li>
@@ -416,8 +415,8 @@
             <span class="post-nav-divider"></span>
 
             <div class="post-nav-prev post-nav-item">
-                <a href="/2020/04/08/refactor-chapter6_7/" rel="prev" title="Chapter6 第一組重構、Chapter7 封裝">
-                  Chapter6 第一組重構、Chapter7 封裝 <i class="fa fa-chevron-right"></i>
+                <a href="/2020/04/08/refactor-chapter6_7/" rel="prev" title="Chapter6 第一組重構、Chapter7 封裝 - 整理筆記">
+                  Chapter6 第一組重構、Chapter7 封裝 - 整理筆記 <i class="fa fa-chevron-right"></i>
                 </a>
             </div>
           </div>
@@ -473,7 +472,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">11</span>
+          <span class="site-state-item-count">15</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
